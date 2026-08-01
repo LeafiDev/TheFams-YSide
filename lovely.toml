@@ -1,0 +1,340 @@
+[manifest]
+version = "1.0.0"
+priority = 999
+
+#Mod's Front Draw
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "if G.SPLASH_FRONT then"
+position = "before"
+payload = '''
+if (G.yogi_draw_front) then
+    G.yogi_draw_front();
+end
+'''
+match_indent = true
+times = 1
+
+
+# Update global music timer in game loop
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = "G:update(dt)"
+position = "after"
+payload = '''
+-- SongTracker: Update tracking from audio thread
+if (G.songtracker_update) then
+    G.songtracker_update(dt)
+end
+'''
+match_indent = true
+times = 1
+
+# Add channels for querying track info
+[[patches]]
+[patches.pattern]
+target = "engine/sound_manager.lua"
+pattern = "LOAD_CHANNEL = love.thread.getChannel('load_channel')"
+position = "after"
+payload = '''
+TRACK_INFO_QUERY = love.thread.getChannel('track_info_query')
+TRACK_INFO_RESPONSE = love.thread.getChannel('track_info_response')'''
+match_indent = true
+times = 1
+
+# Add track info query handler in audio thread
+[[patches]]
+[patches.pattern]
+target = "engine/sound_manager.lua"
+pattern = "while true do\n    --Monitor the channel for any new requests\n    local request = CHANNEL:demand() -- Value from channel"
+position = "after"
+payload = '''
+    
+    -- Handle track info queries
+    local track_query = TRACK_INFO_QUERY:pop()
+    if track_query then
+        local best_track = nil
+        local best_volume = -1
+        
+        -- Find highest-volume music track
+        for key, sources in pairs(SOURCES) do
+            if string.find(key, 'music') and sources[1] and sources[1].sound then
+                local s = sources[1].sound
+                if s:isPlaying() then
+                    local vol = s:getVolume()
+                    if vol > best_volume then
+                        best_volume = vol
+                        best_track = {key = key, sound = s}
+                    end
+                end
+            end
+        end
+        
+        if best_track then
+            local s = best_track.sound
+            local channels = 0
+            local chan_ok, chan_result = pcall(function() return s:getChannels() end)
+            if chan_ok then channels = chan_result end
+            
+            -- Get actual playback position via tell() which works on stereo
+            local tell_pos = s:tell()
+            local duration = s:getDuration()
+            
+            -- Initialize per-track loop tracking
+            if not SONGTRACKER_LOOP_STATE then SONGTRACKER_LOOP_STATE = {} end
+            if not SONGTRACKER_LOOP_STATE[best_track.key] then
+                SONGTRACKER_LOOP_STATE[best_track.key] = {last_tell = 0, loop_offset = 0}
+            end
+            
+            local state = SONGTRACKER_LOOP_STATE[best_track.key]
+            
+            -- Detect loop: when tell() drops below previous value, track looped
+            if tell_pos < state.last_tell then
+                state.loop_offset = state.loop_offset + duration
+            end
+            
+            -- Adjust position: actual_elapsed = tell_pos + cumulative_loop_offset
+            local adjusted_position = tell_pos + state.loop_offset
+            
+            state.last_tell = tell_pos
+            
+            TRACK_INFO_RESPONSE:push({
+                track_key = best_track.key,
+                duration = duration,
+                position = adjusted_position,
+                volume = s:getVolume(),
+                pitch = s:getPitch(),
+                channels = channels,
+                source_type = tostring(s:getType()),
+                is_playing = true
+            })
+        else
+            TRACK_INFO_RESPONSE:push({is_playing = false})
+        end
+    end'''
+match_indent = true
+times = 1
+
+#back draw
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "if not G.debug_UI_toggle then"
+position = "after"
+payload = '''
+if (G.yogi_draw) then
+    G.yogi_draw();
+end
+'''
+match_indent = true
+times = 1
+
+# mod stuff
+[[patches]]
+[patches.pattern]
+target = "main.lua"
+pattern = "G:update(dt)"
+position = "after"
+payload = '''
+
+if (G.yogi_update) then
+    G.yogi_update(dt)
+end
+'''
+match_indent = true
+times = 1
+
+# mod stuff
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "function create_UIBox_game_over()"
+position = "after"
+payload = '''
+yogi_gameover()
+'''
+match_indent = true
+times = 1
+
+# starting blinds
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "function create_UIBox_HUD()"
+position = "after"
+payload = '''
+yogi_startgame()
+'''
+match_indent = true
+times = 1
+
+# pausing
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "if G.STAGE == G.STAGES.RUN then"
+position = "after"
+payload = '''
+pause_trigger()
+'''
+match_indent = false
+times = 1
+
+# when round evaluation is created
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "function create_UIBox_round_evaluation()"
+position = "after"
+payload = '''
+eval_trigger()
+'''
+match_indent = false
+times = 1
+
+# when hand played
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "G.FUNCS.play_cards_from_highlighted = function(e)"
+position = "after"
+payload = '''
+yogi_press_play()
+'''
+match_indent = false
+times = 1
+
+
+# new section
+# so I can see it lol
+
+
+
+
+
+
+# when any card is hovered
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "Node.hover(self)"
+position = "after"
+payload = '''
+yogi_hover_card(self)
+'''
+match_indent = false
+times = 1
+
+# adding additional G.GAME data
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "self.GAME.current_round.reroll_cost = self.GAME.base_reroll_cost"
+position = "after"
+payload = '''
+yogi_add_game(self)
+'''
+match_indent = false
+times = 1
+
+
+
+
+
+
+# presetting when card is hovered
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "self.ability_UIBox_table = self:generate_UIBox_ability_table()"
+position = "before"
+payload = '''
+yogi_prehover_card(self)
+'''
+match_indent = false
+times = 1
+
+
+
+# presetting when card is hovered
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "Node.stop_hover(self)"
+position = "after"
+payload = '''
+yogi_stop_hover(self)
+'''
+match_indent = false
+times = 1
+
+
+
+
+# draw the most top UI
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "for k, v in pairs(self.I.POPUP) do"
+position = "before"
+payload = '''
+if (G.yogi_draw_UI) then
+    G.yogi_draw_UI();
+end
+'''
+match_indent = false
+times = 1
+
+# SPEED FREEDOM!!!!!!!!
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "G.ACC = math.min((G.ACC or 0) + dt*0.2*self.SETTINGS.GAMESPEED, 16)"
+position = "at"
+payload = '''
+G.ACC = (G.ACC or 0) + dt*0.2*self.SETTINGS.GAMESPEED
+'''
+match_indent = false
+times = 1
+
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "G.GAME.current_round.discards_left = math.max(0, G.GAME.round_resets.discards + G.GAME.round_bonus.discards)"
+position = "before"
+payload = '''
+yogi_blind_set()
+'''
+match_indent = false
+times = 1
+
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = "function Card:click()"
+position = "after"
+payload = '''
+yogi_card_clicked(self)
+'''
+match_indent = false
+times = 1
+
+
+
+
+# why so big????
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "temp_blind.float = true"
+position = "before"
+payload = '''
+temp_blind.scale = 0.5
+'''
+match_indent = false
+times = 1
+
