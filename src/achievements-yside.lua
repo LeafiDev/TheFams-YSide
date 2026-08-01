@@ -26,7 +26,7 @@ SMODS.Achievement{
     pos = { x = 0, y = 0 },
     hidden_text = true,
     unlock_condition = function(self, args)
-        return get_current_profile().BSScore >= 10
+        return (get_current_profile().BSScore or 0) >= 10
     end,
 }
 
@@ -42,7 +42,7 @@ SMODS.Achievement{
     pos = { x = 0, y = 0 },
     hidden_text = true,
     unlock_condition = function(self, args)
-        return get_current_profile().BSScore >= 15
+        return (get_current_profile().BSScore or 0) >= 15
     end,
 }
 
@@ -58,7 +58,7 @@ SMODS.Achievement{
     pos = { x = 0, y = 0 },
     hidden_text = true,
     unlock_condition = function(self, args)
-        return get_current_profile().BSScore >= 25
+        return (get_current_profile().BSScore or 0) >= 25
     end,
 }
 
@@ -74,7 +74,7 @@ SMODS.Achievement{
     pos = { x = 0, y = 0 },
     hidden_text = true,
     unlock_condition = function(self, args)
-        return get_current_profile().BSScore >= 50
+        return (get_current_profile().BSScore or 0) >= 50
     end,
 }
 
