@@ -37,42 +37,15 @@ end
 
 
 function build_large_textures()
-
-G.lore1 = {}
-for i = 1, 75 do
-    table.insert(G.lore1, new_arbituary_image("textures/lore1/lore"..tonumber(i)..".png"))
-end
-
-G.lore2 = {}
-for i = 1, 75 do
-    table.insert(G.lore2, new_arbituary_image("textures/lore2/lore"..tonumber(i)..".png"))
-end
-
-G.lore3 = {}
-for i = 1, 77 do
-    table.insert(G.lore3, new_arbituary_image("textures/lore3/lore"..tonumber(i)..".png"))
-end
-
-G.lore4 = {}
-for i = 1, 75 do
-    table.insert(G.lore4, new_arbituary_image("textures/lore4/lore"..tonumber(i)..".png"))
-end
-
-G.lore5 = {}
-for i = 1, 75 do
-    table.insert(G.lore5, new_arbituary_image("textures/lore5/lore"..tonumber(i)..".png"))
-end
-
-G.lore6 = {}
-for i = 1, 75 do
-    table.insert(G.lore6, new_arbituary_image("textures/lore6/lore"..tonumber(i)..".png"))
-end
-
-G.lore7 = {}
-for i = 1, 75 do
-    table.insert(G.lore7, new_arbituary_image("textures/lore7/lore"..tonumber(i)..".png"))
-end
-
-
-
+    G.coolAwesomeProphecyShader = new_arbituary_shader("deltARune")
+    G.coolAwesomeProphecyShader:send("depths", new_arbituary_image("textures/depths.png"));
+    G.lore = {
+        new_arbituary_image("textures/lore/lore1.png"),
+        new_arbituary_image("textures/lore/lore2.png"),
+        new_arbituary_image("textures/lore/lore3.png"),
+        new_arbituary_image("textures/lore/lore4.png"),
+        new_arbituary_image("textures/lore/lore5.png"),
+        new_arbituary_image("textures/lore/lore6.png"),
+        new_arbituary_image("textures/lore/lore7.png")
+    }
 end

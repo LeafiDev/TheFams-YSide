@@ -650,37 +650,35 @@ G.yogi_draw = function()
 		love.graphics.draw(G.borfroom, (G.ease_screen.x * 0.5) + (G.heart.img:getWidth() / 5) - 55, (G.ease_screen.y * 0.5) - (G.heart.img:getHeight() / 2) - 55, 0, 1, 1);
 	end
 
-	if isChallenge("magic") then
+	if isChallenge("magic") and G.coolAwesomeProphecyShader then
+		--Get old shader
+		local oldShader = love.graphics.getShader();
+
+		--Wahh
+		G.coolAwesomeProphecyShader:send("timer", G.TIMERS.REAL);
 		love.graphics.draw(G.lightoff.img, 0, 0, 0, 255, 255);
 
-		if G.GAME.round_resets.ante == 1 and G.GAME.blind.name == "Big Blind" then
-			love.graphics.draw(G.lore1[(math.floor(G.TIMERS.REAL * 25) % #G.lore1) + 1], (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, G.lore1[1]:getWidth() / 2, G.lore1[1]:getHeight() / 2)
+		love.graphics.setShader(G.coolAwesomeProphecyShader);
+
+		local panel = nil;
+
+		--Find the panel we are using
+		G.coolAwesomeProphecyShader:send("hue", 200);
+		if G.GAME.round_resets.ante == 1 and G.GAME.blind.name == "Big Blind" then panel = G.lore[1];
+		elseif G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Small Blind" then panel = G.lore[2];
+		elseif G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Big Blind" then panel = G.lore[3];
+		--For these make them cool
+		elseif G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Small Blind" then panel = G.lore[4]; G.coolAwesomeProphecyShader:send("hue", 230);
+		elseif G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Big Blind" then panel = G.lore[5]; G.coolAwesomeProphecyShader:send("hue", 250);
+		elseif G.GAME.round_resets.ante == 4 and G.GAME.blind.name == "Small Blind" then panel = G.lore[6]; G.coolAwesomeProphecyShader:send("hue", 280);
+		elseif G.GAME.round_resets.ante == 4 and G.GAME.blind.name ~= "" and G.GAME.blind.name ~= "Small Blind" and G.GAME.blind.name ~= "Big Blind" then panel = G.lore[7]; G.coolAwesomeProphecyShader:send("hue", 300);
 		end
 
-		if G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Small Blind" then
-			love.graphics.draw(G.lore2[(math.floor(G.TIMERS.REAL * 25) % #G.lore2) + 1], (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, G.lore2[1]:getWidth() / 2, G.lore2[1]:getHeight() / 2)
+		if (panel ~= nil) then 
+			love.graphics.draw(panel, (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, panel:getWidth() / 2, panel:getHeight() / 2);
 		end
 
-		if G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Big Blind" then
-			love.graphics.draw(G.lore3[(math.floor(G.TIMERS.REAL * 25) % #G.lore3) + 1], (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, G.lore3[1]:getWidth() / 2, G.lore3[1]:getHeight() / 2)
-		end
-
-		if G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Small Blind" then
-			love.graphics.draw(G.lore4[(math.floor(G.TIMERS.REAL * 25) % #G.lore4) + 1], (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, G.lore4[1]:getWidth() / 2, G.lore4[1]:getHeight() / 2)
-		end
-
-		if G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Big Blind" then
-			love.graphics.draw(G.lore5[(math.floor(G.TIMERS.REAL * 25) % #G.lore5) + 1], (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, G.lore5[1]:getWidth() / 2, G.lore5[1]:getHeight() / 2)
-		end
-
-		if G.GAME.round_resets.ante == 4 and G.GAME.blind.name == "Small Blind" then
-			love.graphics.draw(G.lore6[(math.floor(G.TIMERS.REAL * 25) % #G.lore6) + 1], (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, G.lore6[1]:getWidth() / 2, G.lore6[1]:getHeight() / 2)
-		end
-
-		if G.GAME.round_resets.ante == 4 and G.GAME.blind.name ~= "" and G.GAME.blind.name ~= "Small Blind" and G.GAME.blind.name ~= "Big Blind" then
-			love.graphics.draw(G.lore7[(math.floor(G.TIMERS.REAL * 25) % #G.lore7) + 1], (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, G.lore7[1]:getWidth() / 2, G.lore7[1]:getHeight() / 2)
-		end
-
+		love.graphics.setShader(oldShader);
 	end
 
 	draw_faces()
@@ -689,7 +687,6 @@ G.yogi_draw = function()
 	draw_battle_box()
 	draw_bullets()
 	draw_soul()
-
 end
 
 

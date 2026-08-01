@@ -204,6 +204,10 @@ new_arbituary_image = function(path)
 	return love.graphics.newImage("mods/"..fams2_path.."/assets/"..path)
 end
 
+new_arbituary_shader = function(shader)
+    return love.graphics.newShader("mods/"..fams2_path.."/assets/shaders/"..shader..".fs");
+end
+
 function has_modifier(index)
     if G.GAME.modifiers[index] then
         return true
