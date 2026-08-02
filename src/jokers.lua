@@ -117,6 +117,12 @@ SMODS.Atlas {
     py = 95
 }
 
+SMODS.Atlas {
+    key = "bird",
+    path = "bird.png",
+    px = 71,
+    py = 95
+}
 
 
 
@@ -1101,3 +1107,47 @@ SMODS.Joker {
         ForceLoss()
     end
 }
+
+SMODS.Joker {
+    key = "bird",
+    loc_txt = {
+        name = "Bird",
+        text = {
+            "between each blind start it will alternate between your left most joker and right most joker",
+            "{C:red,s:2,E:yogi_shake}He cannot be moved{}",
+            "{X:mult,C:white}3X{} mult"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+
+        return { vars = {  } }
+    end,
+    blueprint_compat = true,
+    eternal_compat = false,
+    config = { extra = { side = 'left' } },
+    cost = 4,
+    unlocked = true,
+    rarity = 2,
+    atlas = "bird",
+    pos = { x = 0, y = 0 },
+    
+    calculate = function(self, card, context)
+    if context.setting_blind then
+        G.birdrestore = card
+
+        if side == 'left' then
+            side = 'right'
+
+            table.move(src, f, e, t [, dst])
+        else
+            side = 'left'
+            table.move(src, f, e, t [, dst])
+        end
+    end
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+    
+    end
+}
+

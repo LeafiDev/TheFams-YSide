@@ -71,7 +71,7 @@ SMODS.Enhancement{
     end,
     calculate = function(self, card, context)
         if context.cardarea == G.play and context.main_scoring then
-            G.GAME.reputation = G.GAME.reputation + 0.25
+            G.GAME.reputation = (G.GAME.reputation or 0) + 0.25
             if G.GAME.reputation < 1 then
                 final = 1 * 0.25
             else
