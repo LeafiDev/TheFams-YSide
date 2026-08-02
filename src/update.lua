@@ -209,8 +209,9 @@ ForceLoss = function()
 	end
 end
 
+local updateDelta = 0.016;
 G.yogi_update = function(dt)
-	
+	updateDelta = dt;
 
 	position = G.get_song_position()
 	beatdur = 60 / G.BPM or 120
@@ -608,6 +609,7 @@ G.last_goodbye_battleback = function()
 
 end
 
+local panel = nil; local panelAlpha = 0;
 G.yogi_draw = function()
 
 	draw_battle_grid()
@@ -660,21 +662,27 @@ G.yogi_draw = function()
 
 		love.graphics.setShader(G.coolAwesomeProphecyShader);
 
-		local panel = nil;
-
 		--Find the panel we are using
 		G.coolAwesomeProphecyShader:send("hue", 200);
-		if G.GAME.round_resets.ante == 1 and G.GAME.blind.name == "Big Blind" then panel = G.lore[1];
-		elseif G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Small Blind" then panel = G.lore[2];
-		elseif G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Big Blind" then panel = G.lore[3];
-		--For these make them cool
-		elseif G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Small Blind" then panel = G.lore[4]; G.coolAwesomeProphecyShader:send("hue", 230);
-		elseif G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Big Blind" then panel = G.lore[5]; G.coolAwesomeProphecyShader:send("hue", 250);
-		elseif G.GAME.round_resets.ante == 4 and G.GAME.blind.name == "Small Blind" then panel = G.lore[6]; G.coolAwesomeProphecyShader:send("hue", 280);
-		elseif G.GAME.round_resets.ante == 4 and G.GAME.blind.name ~= "" and G.GAME.blind.name ~= "Small Blind" and G.GAME.blind.name ~= "Big Blind" then panel = G.lore[7]; G.coolAwesomeProphecyShader:send("hue", 300);
+		if (G.STATE == G.STATES.ROUND_EVAL or G.STATE == G.STATES.SHOP or G.STATE == G.STATES.BLIND_SELECT) then
+			panelAlpha = panelAlpha + (0 - panelAlpha) * math.pow(0.1, 100 * updateDelta);
+		else
+			panelAlpha = panelAlpha + (1 - panelAlpha) * math.pow(0.1, 100 * updateDelta);
+
+			if G.GAME.round_resets.ante == 1 and G.GAME.blind.name == "Big Blind" then panel = G.lore[1];
+			elseif G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Small Blind" then panel = G.lore[2];
+			elseif G.GAME.round_resets.ante == 2 and G.GAME.blind.name == "Big Blind" then panel = G.lore[3];
+			--For these make them cool
+			elseif G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Small Blind" then panel = G.lore[4]; G.coolAwesomeProphecyShader:send("hue", 230);
+			elseif G.GAME.round_resets.ante == 3 and G.GAME.blind.name == "Big Blind" then panel = G.lore[5]; G.coolAwesomeProphecyShader:send("hue", 250);
+			elseif G.GAME.round_resets.ante == 4 and G.GAME.blind.name == "Small Blind" then panel = G.lore[6]; G.coolAwesomeProphecyShader:send("hue", 280);
+			elseif G.GAME.round_resets.ante == 4 and G.GAME.blind.name ~= "" and G.GAME.blind.name ~= "Small Blind" and G.GAME.blind.name ~= "Big Blind" then panel = G.lore[7]; G.coolAwesomeProphecyShader:send("hue", 300);
+			end
 		end
 
+
 		if (panel ~= nil) then 
+			love.graphics.setColor(1, 1, 1, panelAlpha);
 			love.graphics.draw(panel, (G.ease_screen.x * 0.5) + love.graphics:getWidth() / 2, (G.ease_screen.y * 0.5) + love.graphics:getHeight() / 2, 0, 2, 2, panel:getWidth() / 2, panel:getHeight() / 2);
 		end
 
