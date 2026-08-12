@@ -3,7 +3,31 @@ SMODS.Sound {
   pitch = 1,
   path = "music_main.ogg",
   select_music_track = function(self)
-	return 5
+    if G.MUSIC_ID == "Y-SIDE" then
+      return 6
+    end
+  end
+}
+
+SMODS.Sound {
+  key = "music_gennew",
+  pitch = 1,
+  path = "music_gennew.ogg",
+  select_music_track = function(self)
+    if G.MUSIC_ID == "FAMS" then
+      return 6
+    end
+  end
+}
+
+SMODS.Sound {
+  key = "music_completenorm",
+  pitch = 1,
+  path = "music_completenorm.ogg",
+  select_music_track = function(self)
+    if G.MUSIC_ID == "FAMS (DAWG TRIALS)" then
+      return 6
+    end
   end
 }
 
@@ -14,6 +38,17 @@ SMODS.Sound {
   select_music_track = function(self)
     if G and G.GAME and G.GAME.blind and G.GAME.blind.name == "bl_yogi_graze" then
       return 25
+    end
+  end
+}
+
+SMODS.Sound {
+  key = "music_windoe",
+  pitch = 1,
+  path = "music_windoe.ogg",
+  select_music_track = function(self)
+    if isChallenge("places") then
+    return 55
     end
   end
 }
@@ -328,6 +363,12 @@ SMODS.Sound {
   path = "mus_sfx_a_grab.ogg"
 }
 
+SMODS.Sound {
+  key = "mus_explosion",
+  pitch = 1,
+  volume = 1,
+  path = "mus_explosion.ogg"
+}
 
 -- rhythm needed
 

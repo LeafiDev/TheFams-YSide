@@ -5,6 +5,10 @@ G.right_bullet_timer = 0
 G.fams_timer = G.fams_timer + 1
 G.playing_battle = false
 
+G.earlcube = new_arbituary_image("textures/earl.png")
+G.depths = new_arbituary_image("textures/Depths.png")
+
+
 
 G.CONDITIONALS = {
 	x = 0,
@@ -209,9 +213,7 @@ ForceLoss = function()
 	end
 end
 
-local updateDelta = 0.016;
 G.yogi_update = function(dt)
-	updateDelta = dt;
 
 	position = G.get_song_position()
 	beatdur = 60 / G.BPM or 120
@@ -251,9 +253,17 @@ G.yogi_update = function(dt)
     end
 
 	if isChallenge("onemore") and G.GAME.blind.name == "" and G.TIMER_TRACK ~= "onemore" and G.GAME.round_resets.ante < 11 then
-	set_deathwish_timer("onemore")
+		set_deathwish_timer("onemore")
 	else
 	
+	end
+
+	if isChallenge("TIM") then
+		G.TIMERTICK = G.TIMERTICK + dt
+		if G.TIMERTICK > 2 then
+			G.GAME.dollars = G.GAME.dollars + G.GAME.modifiers.moneydecay
+			G.TIMERTICK = 0
+		end
 	end
 
 	if G and G.GAME and G.GAME.blind and G.GAME.blind.name == "bl_yogi_view" and G.CUTSCENE == true then
@@ -273,7 +283,7 @@ G.yogi_update = function(dt)
 	G.CONDITIONALS.text = G.CONDITIONALS.text .. "TASKS LIST:\n"
 
 	if G.DASH then
-		G.ROOM.jiggle = 1
+		G.ROOM.jiggle = 0.5
 	end
 
 	if has_modifier("bigmoney") and G and G.GAME and G.GAME.dollars then
@@ -283,8 +293,23 @@ G.yogi_update = function(dt)
 		end
 	end
 
+	if G.GAME.round_resets.ante == G.GAME.win_ante and has_modifier("rep_required") then
+		if G.GAME.reputation < G.GAME.modifiers.rep_required then
+			ForceLoss()
+		end
+	end
+
+	if isChallenge("places") then
+		G.CONDITIONALS.text = G.CONDITIONALS.text .. "Do not play more than "..tostring(G.GAME.modifiers.scorelimit).."\nchips at a time\n" .. "Currently: " .. tostring(G.GAME.round_scores.hand.amt) .. " / "..tostring(G.GAME.modifiers.scorelimit).."\n"
+		if G.GAME.round_scores.hand.amt > G.GAME.modifiers.scorelimit then
+			ForceLoss()
+			play_sound("yogi_mus_explosion", 1, 1)
+			G.GAME.round_scores.hand.amt = -99999999
+		end
+	end
+
 	if has_modifier("cardlimit") and G and G.GAME and G.GAME.hands_played then
-		G.CONDITIONALS.text = G.CONDITIONALS.text .. "Do not play more than 24 hands total\n" .. "Currently " .. tostring(G.GAME.hands_played) .. "/24\n"
+		G.CONDITIONALS.text = G.CONDITIONALS.text .. "Do not play more than 24 hands total\n" .. "Highest Score " .. tostring(G.GAME.hands_played) .. "/24\n"
 		if G.GAME.hands_played > 24 then
 			ForceLoss()
 		end
@@ -609,10 +634,76 @@ G.last_goodbye_battleback = function()
 
 end
 
+
+
+G.errorwindow = new_arbituary_image("textures/xp.png")
+G.errorwindow2 = new_arbituary_image("textures/xp2.png")
+G.errorwindow3 = new_arbituary_image("textures/xp3.png")
+G.errorwindow4 = new_arbituary_image("textures/xp4.png")
+G.errorwindow5 = new_arbituary_image("textures/xp5.png")
+G.errorwindow6 = new_arbituary_image("textures/xp6.png")
+
 local panel = nil; local panelAlpha = 0;
 G.yogi_draw = function()
 
+	local t = G.TIMERS.REAL
+	if isChallenge("places") then
+		-- #008180
+		local screen_width = love.graphics.getWidth()
+		local screen_height = love.graphics.getHeight()
+		
+		love.graphics.setColor(0, 0.506, 0.502, 1)
+		love.graphics.rectangle("fill", 0, 0, screen_width, screen_height)
+		love.graphics.setColor(1, 1, 1, 1)
+
+		love.graphics.draw(G.errorwindow2, 750 + G.ease_screen.x * 0.65, 250 + G.ease_screen.y * 0.65, 0, 0.3, 0.3);
+		love.graphics.draw(G.errorwindow2, 775 + G.ease_screen.x * 0.65, 275 + G.ease_screen.y * 0.65, 0, 0.3, 0.3);
+		love.graphics.draw(G.errorwindow2, 800 + G.ease_screen.x * 0.65, 300 + G.ease_screen.y * 0.65, 0, 0.3, 0.3);
+
+		love.graphics.draw(G.errorwindow4, 1050 + G.ease_screen.x * 0.85, 100 + G.ease_screen.y * 0.85, 0, 0.45, 0.45);
+		
+		draw_3d(
+			(screen_width / 2) + G.ease_screen.x * 2.5,
+			(screen_height / 2) + G.ease_screen.y * 2.5,
+			300,
+			100,
+			t * 0.5,
+			t,
+			t * 0.25,
+			nil
+		)
+
+		draw_3d(
+			(screen_width / 3.5) + G.ease_screen.x * 1.5,
+			(screen_height / 3.5) + G.ease_screen.y * 1.5,
+			600,
+			300,
+			t * 0.5,
+			t,
+			t * -0.999,
+			nil
+		)
+
+		love.graphics.draw(G.errorwindow, 1020 + G.ease_screen.x * 2.66, 250 + G.ease_screen.y * 2.66, 0, 1, 1);
+		love.graphics.draw(G.errorwindow5, 450 + G.ease_screen.x * 1.5, 250 + G.ease_screen.y * 1.5, 0, 0.85, 0.85);
+
+		draw_3d(
+			(screen_width / 15.5) + G.ease_screen.x * 0.5,
+			(screen_height / 15.5) + G.ease_screen.y * 0.5,
+			200,
+			50,
+			t * 0.5,
+			t,
+			t * 0.25,
+			nil
+		)
+
+		love.graphics.draw(G.errorwindow3, 1000 + G.ease_screen.x * 1, 560 + G.ease_screen.y * 0.65, 0, 0.6, 0.6);
+	end
+
+	if not isChallenge("places") then
 	draw_battle_grid()
+	end
 
 	if G.niceloop == true then
 		draw_battle_grid_speed()
@@ -698,10 +789,67 @@ G.yogi_draw = function()
 end
 
 
+
+
 G.yogi_draw_front = function()
 	local mx = love.mouse.getX();
 	local my = love.mouse.getY();
 	G.ease_screen = { x = (G.ARGS.eased_cursor_pos.sx - 960) * 0.03 or 0, y = (G.ARGS.eased_cursor_pos.sy - 21) * 0.03 or 0 }
+
+	local t = G.TIMERS.REAL
+	-- oh god 3d
+	if isChallenge("places") then
+		local screen_width = love.graphics.getWidth()
+		local screen_height = love.graphics.getHeight()
+
+		draw_3d(
+			((screen_width / 19) - 55) + G.ease_screen.x * 3.5,
+			((screen_height / 19) + 55) + G.ease_screen.y * 3.5,
+			75,
+			75 / 2,
+			t * 0.05,
+			t,
+			t * 0,
+			nil
+		)
+
+		draw_3d(
+			(screen_width / 20) + G.ease_screen.x * 3.9,
+			(screen_height / 20) + G.ease_screen.y * 3.9,
+			25,
+			25 / 2,
+			t * 0.1,
+			t,
+			t * 0.05,
+			nil
+		)
+
+		love.graphics.draw(G.errorwindow6, 1500 + G.ease_screen.x * 5, 800 + G.ease_screen.y * 5, 0, 1.5, 1.5);
+
+	end
+	
+
+	if G and G.GAME and G.GAME.blind and G.GAME.blind.name == "bl_yogi_mash" then
+		removeCARDAREA()
+		-- Create font at high render scale to avoid blur
+		local font = love.graphics.newFont("resources/fonts/m6x11plus.ttf", 200)
+		--regular text
+		local plainText = love.graphics.newText(font, tostring(math.floor(G.GAME.mashcount)).." of "..tostring(math.floor(25 * G.GAME.round_resets.ante) ))
+		love.graphics.draw(plainText, math.floor(mx), math.floor(my) - 55, 0, 0.2, 0.2, plainText:getWidth() * 0.5, 0);
+
+		if love.mouse.isDown(1) and G.STATE ~= 8 then
+			if G.GAME.mashwait == false then
+			G.GAME.mashcount = G.GAME.mashcount + 1
+			G.GAME.mashwait = true
+			if G.GAME.mashcount >= 25 * G.GAME.round_resets.ante then
+				remove_timer("mash")
+				end_round()
+			end
+			end
+		else
+			G.GAME.mashwait = false
+		end
+	end
 
 
 	if G and  G.GAME and not G.GAME.light then
@@ -840,7 +988,7 @@ end
 		love.graphics.draw(timer_text, math.floor(G.timer.x) + 115, math.floor(G.timer.y) + 210, -0.3, G.timer.xscale, G.timer.yscale);
 	end
 
-	if G.STATE ~= 11 then
+	if G.STATE ~= 11 and G.STATE ~= 13 then
 		love.graphics.setColor(1,1,1,1)
 		local cond_font = love.graphics.newFont("resources/fonts/m6x11plus.ttf", 25)
 		local texter = love.graphics.newText(cond_font, G.CONDITIONALS.text or "")

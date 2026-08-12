@@ -14,6 +14,13 @@ SMODS.Atlas {
     py = 95
 }
 
+SMODS.Atlas {
+    key = "double",
+    path = "double.png",
+    px = 71,
+    py = 95
+}
+
 SMODS.Back {
     key = "QB",
     loc_txt = {
@@ -100,6 +107,31 @@ SMODS.Back {
             func = function()
                 G.GAME.dollars = 10
                 G.GAME.reputation = 10
+                return true
+            end
+        }))
+end
+}
+
+SMODS.Back {
+    key = "LBD",
+    loc_txt = {
+        name = "Limit Break Deck",
+        text = {
+            "Doubles {C:chips}Play{} and {C:mult}Discard{} limit"
+        }
+    },
+    loc_vars = function()
+        return { vars = {  } }
+    end,
+    atlas = "double",
+    pos = {x = 0, y = 0},
+    apply = function(self, back)
+    G.E_MANAGER:add_event(Event({
+            trigger = "immediate",
+            func = function()
+                SMODS.change_play_limit(5)
+                SMODS.change_discard_limit(5)
                 return true
             end
         }))

@@ -20,10 +20,3 @@ SMODS.DynaTextEffect {
         letter.offset.y = math.sin(G.TIMERS.REAL * 25 + (index)) * 15
     end
 }
-
-SMODS.DynaTextEffect {
-    key = "upside_down",
-    func = function (self, index, letter)
-        letter.r = 180
-    end
-}

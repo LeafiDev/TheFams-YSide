@@ -66,7 +66,19 @@ return {
             },
             ch_c_finale = {
                 "Reach the {X:black,C:red,E:1,s:2.5}THING{} beyond the universe.",
-            }
+            },
+            ch_c_moneydecay = {
+                "Every 2 seconds you lose {C:attention}#1#${}"
+            },
+            ch_c_rep_required = {
+                "Reach to or above {C:purple,E:1}#1# Reputation{} before ante 10"
+            },
+            ch_c_set_rep = {
+                "Start with {C:purple,E:1}#1# Reputation{}"
+            },
+            ch_c_scorelimit = {
+                "You cannot score beyond {C:attention}#1# chips{} at a time or you {C:red,E:yogi_shake}explode{}"
+            },
         },
     },
 }

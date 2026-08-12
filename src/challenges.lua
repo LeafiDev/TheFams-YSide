@@ -124,6 +124,34 @@ SMODS.Challenge {
 }
 
 SMODS.Challenge {
+  key = 'TIM',
+  loc_txt = {
+	name = "Time Is Money",
+	text = {''}
+  },
+  jokers = {},
+  deck = {
+	type = 'Challenge Deck'
+  },
+  button_colour = G.C.MONEY,
+  rules = {
+	custom = {{id = 'moneydecay', value = -0.1}},
+	modifiers = {
+        
+	}
+  },
+  restrictions = {
+		banned_cards = {
+      {id = get_fams_joker('j_fams_kitchgun')}
+		},
+	banned_tags = {},
+	banned_other = {}
+  },
+  consumeables = {},
+  vouchers = {}
+}
+
+SMODS.Challenge {
   key = 'flipmania',
   loc_txt = {
 	name = "Spin it to win it!",
@@ -153,33 +181,6 @@ SMODS.Challenge {
 }
 
 SMODS.Challenge {
-  key = 'sun',
-  loc_txt = {
-	name = "Acquire Canine(s)",
-	text = {''}
-  },
-  jokers = {},
-  deck = {
-	type = 'Challenge Deck'
-  },
-  button_colour = G.C.ORANGE,
-  rules = {
-	custom = {},
-	modifiers = {
-    
-	}
-  },
-  restrictions = {
-		banned_cards = {
-		},
-	banned_tags = {},
-	banned_other = {}
-  },
-  consumeables = {},
-  vouchers = {}
-}
-
-SMODS.Challenge {
   key = 'magic',
   loc_txt = {
 	name = "Did you get a haircut?",
@@ -198,6 +199,88 @@ SMODS.Challenge {
   },
   restrictions = {
 		banned_cards = {
+		},
+	banned_tags = {},
+	banned_other = {}
+  },
+  consumeables = {},
+  vouchers = {}
+}
+
+SMODS.Challenge {
+  key = 'M',
+  loc_txt = {
+	name = "Marathon",
+	text = {''}
+  },
+  jokers = {{id = "j_yogi_walk", eternal = true},{id = "j_yogi_walk", eternal = true},{id = "j_yogi_walk", eternal = true},{id = "j_yogi_walk", eternal = true},{id = "j_yogi_walk", eternal = true}},
+  deck = {
+	type = 'Challenge Deck'
+  },
+  button_colour = G.C.GREEN,
+  rules = {
+	custom = {},
+	modifiers = {
+        
+	}
+  },
+  restrictions = {
+		banned_cards = {
+		},
+	banned_tags = {},
+	banned_other = {{id = 'c_ectoplasm'}}
+  },
+  consumeables = {},
+  vouchers = {}
+}
+
+SMODS.Challenge {
+  key = 'ASP',
+  loc_txt = {
+	name = "All Star Payout",
+	text = {''}
+  },
+  jokers = {{id = "j_yogi_coolyog"}, {id = "j_yogi_earl"}},
+  deck = {
+	type = 'Challenge Deck'
+  },
+  button_colour = G.C.PURPLE,
+  rules = {
+	custom = {{id = "rep_required", value = 20}, {id = "set_rep", value = 5}, {id = "ante_up", value = 10}},
+	modifiers = {
+        
+	}
+  },
+  restrictions = {
+		banned_cards = {
+		},
+	banned_tags = {},
+	banned_other = {}
+  },
+  consumeables = {},
+  vouchers = {}
+}
+
+SMODS.Challenge {
+  key = 'places',
+  loc_txt = {
+	name = "The Places We Were",
+	text = {''}
+  },
+  jokers = {},
+  deck = {
+	type = 'Challenge Deck'
+  },
+  button_colour = G.C.BLUE,
+  rules = {
+	custom = {{id = "scorelimit", value = 9999}},
+	modifiers = {
+    {id = "hands", value = 8},
+	}
+  },
+  restrictions = {
+		banned_cards = {
+      {id = "j_yogi_coolyog"}
 		},
 	banned_tags = {},
 	banned_other = {}

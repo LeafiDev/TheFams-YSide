@@ -57,27 +57,3 @@ SMODS.Voucher {
 		
 	end,
 }
-
-SMODS.Atlas {
-    key = "L_expand",
-    path = "L_expand.png",
-    px = 71,
-    py = 95
-}
-
-SMODS.Voucher {
-    key = "L_expand",
-    loc_txt = {
-        name = "Mansion's Worst Hider",
-        text = {
-            "Makes Luigi more obvious to see"
-        }
-    },
-    atlas = "L_expand", 
-    pos = {x = 0, y = 0},
-    cost = 7,
-
-    add_to_deck = function(self, card, from_debuff)
-        G.GAME.luigieasy1 = 4
-    end,
-}

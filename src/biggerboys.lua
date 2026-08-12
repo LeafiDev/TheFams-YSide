@@ -297,6 +297,68 @@ SMODS.Blind {
 }
 
 SMODS.Blind {
+    key = "mash",
+	atlas = "salary",
+    pos = { x = 0, y = 0 },
+    loc_txt = {
+        name = "The Masher",
+        text = {"Mash Space #1# times in 10 seconds"}
+    },
+    loc_vars = function(self, info_queue, card)
+        
+        return { vars = { math.floor(25 * G.GAME.round_resets.ante) } }
+    end,
+	boss = ({ min = 2 }),
+    dollars = 5,
+    mult = 0,
+	boss_colour = HEX('ffd3a5'),
+    set_blind = function(self)
+        G.GAME.mashcount = 0
+        if not timer_exists("mash") then
+            make_timer("mash", 10, function()
+            ForceLoss()
+            end, false, 1)
+            set_deathwish_timer("mash")
+        end
+    end,
+
+    calculate = function(self, blind, context)
+        if not timer_exists("mash") and not G.STATE == 8 then
+            make_timer("mash", 10, function()
+            ForceLoss()
+            end, false, 1)
+            set_deathwish_timer("mash")
+        end
+    end,
+
+    recalc_debuff = function(self, card, from_blind)
+        
+    end,
+
+    modify_hand = function(self, cards, poker_hands, text, mult, hand_chips)
+        
+    end,
+
+    get_loc_debuff_text = function(self)
+
+    end,
+
+    press_play = function(self)
+        
+    end,
+
+    drawn_to_hand = function(self)
+        
+    end,
+
+    defeat = function(self, cards, hand, handname, check)
+        
+    end
+
+
+}
+
+SMODS.Blind {
     key = "view",
 	atlas = "view",
     pos = { x = 0, y = 0 },

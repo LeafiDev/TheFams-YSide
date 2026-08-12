@@ -118,8 +118,15 @@ SMODS.Atlas {
 }
 
 SMODS.Atlas {
-    key = "bird",
-    path = "bird.png",
+    key = "biggie",
+    path = "biggie.png",
+    px = 71,
+    py = 95
+}
+
+SMODS.Atlas {
+    key = "earlcube",
+    path = "earlcube.png",
     px = 71,
     py = 95
 }
@@ -1008,7 +1015,7 @@ SMODS.Joker {
         return { vars = {  } }
     end,
     blueprint_compat = true,
-    eternal_compat = false,
+    eternal_compat = true,
     config = { },
     cost = 2,
     unlocked = true,
@@ -1044,7 +1051,7 @@ SMODS.Joker {
         return { vars = { (card.ability.extra.mult or 0) } }
     end,
     blueprint_compat = true,
-    eternal_compat = false,
+    eternal_compat = true,
     config = { extra = { mult = 0 } },
     cost = 4,
     unlocked = true,
@@ -1089,7 +1096,7 @@ SMODS.Joker {
         return { vars = {  } }
     end,
     blueprint_compat = true,
-    eternal_compat = false,
+    eternal_compat = true,
     config = { extra = { mult = 0 } },
     cost = 4,
     unlocked = true,
@@ -1109,13 +1116,54 @@ SMODS.Joker {
 }
 
 SMODS.Joker {
-    key = "bird",
+    key = "5dollar",
     loc_txt = {
-        name = "Bird",
+        name = "5$ Biggie Bag",
         text = {
-            "between each blind start it will alternate between your left most joker and right most joker",
-            "{C:red,s:2,E:yogi_shake}He cannot be moved{}",
-            "{X:mult,C:white}3X{} mult"
+            "When clicked, Destroys and {C:attention}stores your joker{} to the {C:attention}right{}",
+            "While stored when clicked again will {C:attention}restore the joker{}.",
+            "Currently Storing: #1#",
+            "{C:inactive}Due to a bug if you leave a run the card will deload{}"
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+
+        local uh = nil
+        if card and card.ability and card.ability.extra and card.ability.extra.stored and card.ability.extra.stored ~= false then
+            if  card.ability.extra.stored.config.center and card.ability.extra.stored.config.center.loc_txt and card.ability.extra.stored.config.center.loc_txt.name then
+                uh = card.ability.extra.stored.config.center.loc_txt.name
+            else
+                uh = tostring(card.ability.extra.stored.label)
+            end
+        end
+
+        return { vars = { (uh or "Nothing") } }
+    end,
+    blueprint_compat = true,
+    eternal_compat = false,
+    config = { extra = { stored = false } },
+    cost = 5,
+    unlocked = true,
+    rarity = 3,
+    atlas = "biggie",
+    pos = { x = 0, y = 0 },
+    
+    calculate = function(self, card, context)
+        
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+    
+    end
+}
+
+SMODS.Joker {
+    key = "earl3d",
+    loc_txt = {
+        name = "Earl Cubed",
+        text = {
+            "{C:inactive}Excuse me what the fuck?{}",
+            "{X:mult,C:white}4^{} Mult"
         }
     },
     loc_vars = function(self, info_queue, card)
@@ -1124,30 +1172,46 @@ SMODS.Joker {
     end,
     blueprint_compat = true,
     eternal_compat = false,
-    config = { extra = { side = 'left' } },
-    cost = 4,
+    config = { extra = { stored = false } },
+    cost = 5,
     unlocked = true,
-    rarity = 2,
-    atlas = "bird",
+    rarity = "yogi_ultrarare",
+    atlas = "earlcube",
     pos = { x = 0, y = 0 },
     
     calculate = function(self, card, context)
-    if context.setting_blind then
-        G.birdrestore = card
-
-        if side == 'left' then
-            side = 'right'
-
-            table.move(src, f, e, t [, dst])
-        else
-            side = 'left'
-            table.move(src, f, e, t [, dst])
+        if context.joker_main then
+            return { mult = mult ^ 4}
         end
-    end
     end,
 
     add_to_deck = function(self, card, from_debuff)
     
+    end,
+
+    draw = function(self, card, layer)
+        local joker_x = card.VT.x
+        local joker_y = card.VT.y
+
+        local cube_x = joker_x * G.TILESCALE * G.TILESIZE
+        local cube_y = joker_y * G.TILESCALE * G.TILESIZE
+
+        local cube_offset_x = 413
+        local cube_offset_y = 200
+
+        local t = math.floor(love.timer.getTime() * 240 + G.ROOM.jiggle) / 240
+
+        draw_3d(
+            cube_x - cube_offset_x,
+            cube_y - cube_offset_y,
+            300,
+            100,
+            t * 0.5,
+            t,
+            t * 0.25,
+            G.earlcube
+        )
     end
 }
+
 
