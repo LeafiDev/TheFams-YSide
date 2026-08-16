@@ -49,9 +49,9 @@ function G.UIDEF.run_info()
         G.GAME.stake > 1 and {
           label = localize('b_stake'),
           tab_definition_function = G.UIDEF.current_stake,
-        } or nil,
+        } or nil
     },
-    tab_h = 8,
+    tab_h = 4,
     snap_to_nav = true})}})
 end
 
@@ -60,12 +60,7 @@ function G.UIDEF.params()
   rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.02}, nodes={{n=G.UIT.O, config={object = DynaText({string = {"Global Game Parameters"}, hover = true, colours = {G.C.WHITE}, shadow = true, scale = 1, maxw = 6})}}}}
   rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.5}, nodes={{n=G.UIT.C, config={button='reroll_seed', colour=G.C.GREEN, minw=2, minh=0.6, align='cm'}, nodes={{n=G.UIT.T, config={text='Reroll Seed', scale=0.5, colour=G.C.WHITE}}}}}}
   if G and G.GAME and G.GAME.starting_params and next(G.GAME.starting_params) then
-    if isChallenge("BR") then
-       rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.02}, nodes={{n=G.UIT.O, config={object = DynaText({string = {"Boss Rush Progress "..tostring(G.GAME.antes_done.."/"..#allnonbosses())}, colours = {G.C.WHITE}, hover = true, shadow = true, scale = 0.5, maxw = 6})}}}}
-    end
-    if isChallenge("dlcend") then
-       rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.02}, nodes={{n=G.UIT.O, config={object = DynaText({string = {"Profile's Last Checkpoint: "..tostring(get_current_profile().dlcendcheckpoint)}, colours = {G.C.WHITE}, hover = true, shadow = true, scale = 0.5, maxw = 6})}}}}
-    end
+    rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.02}, nodes={{n=G.UIT.O, config={object = DynaText({string = {"Reputation: "..tostring(G.GAME.reputation)}, colours = {G.C.PURPLE}, hover = true, shadow = true, scale = 0.5, maxw = 6})}}}}
     rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.02}, nodes={{n=G.UIT.O, config={object = DynaText({string = {"Bankrupt Threshold: "..tostring(G.GAME.bankrupt_at)}, hover = true, colours = {G.C.WHITE}, shadow = true, scale = 0.5, maxw = 6})}}}}
     rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.02}, nodes={{n=G.UIT.O, config={object = DynaText({string = {"Ante Scale: "..tostring(G.GAME.starting_params.ante_scaling)}, hover = true, colours = {G.C.WHITE}, shadow = true, scale = 0.5, maxw = 6})}}}}
     rows[#rows+1] = {n=G.UIT.R, config={align='cm', padding=0.02}, nodes={{n=G.UIT.O, config={object = DynaText({string = {"Vouchers Available: "..tostring(G.GAME.starting_params.vouchers_in_shop)}, hover = true, colours = {G.C.WHITE}, shadow = true, scale = 0.5, maxw = 6})}}}}

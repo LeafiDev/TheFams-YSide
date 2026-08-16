@@ -1,20 +1,4 @@
 SMODS.ConsumableType{
-    key = "mini-joker",
-    primary_colour = {1, 0.298, 0.251, 1},
-    secondary_colour = {0.663, 0.169, 0.137, 1},
-    loc_txt = {
-        name = "Mini Joker",
-        collection = "Mini Joker",
-        undiscovered = {
-            name = "???",
-            text = {"This joker has not been discovered yet."},
-        },
-    },
-    collection_rows = {3, 3},
-    shop_rate = 0.9,
-}
-
-SMODS.ConsumableType{
     key = "armor",
     primary_colour = {1, 0.498, 0.153, 1},
     secondary_colour = {1, 0.498, 0.153, 1},
@@ -28,22 +12,6 @@ SMODS.ConsumableType{
     },
     collection_rows = {5},
     shop_rate = 0.4,
-}
-
-SMODS.ConsumableType{
-    key = "timermod",
-    primary_colour = {0.667, 0.153, 1, 1},
-    secondary_colour = {0.667, 0.153, 1, 1},
-    loc_txt = {
-        name = "TIMER MODS",
-        collection = "TIMER",
-        undiscovered = {
-            name = "???",
-            text = {"This TIMER MOD has not been discovered yet."},
-        },
-    },
-    collection_rows = {3},
-    shop_rate = 0.1,
 }
 
 SMODS.ConsumableType{
@@ -469,43 +437,5 @@ SMODS.Consumable {
 
 	can_use = function(self, card)
     return true
-    end
-}
-
--- timer
-
-SMODS.Consumable {
-    key = "up",
-    set = "timermod",
-    loc_txt = {
-        name = "{E:yogi_wheel}TIMER INCREASE{}",
-        text = {"{E:yogi_wheel}Increases time by 15 seconds{}"}
-    },
-    loc_vars = function(self, info_queue, card)
-        
-        return { vars = {  } }
-    end,
-    atlas = "timeup",
-    config = { extra = { stats = {atk = 0, def = 0, agl = 0} } },
-    pos = { x = 0, y = 0 },
-    cost = 5,
-    calculate = function(self, card, context)
-        
-    end,
-
-    use = function(self, card)
-        G.TIMER_TRACK.seconds = G.TIMER_TRACK.seconds + 15
-    end,
-
-    update = function(self, card, front)
-        
-    end,
-
-	can_use = function(self, card)
-    return true
-    end,
-
-    in_pool = function(self, args)
-        return isChallenge("onemore") and G.TIMER_TRACK.evil and not G.TIMER_TRACK.evil2
     end
 }

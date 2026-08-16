@@ -338,3 +338,36 @@ temp_blind.scale = 0.5
 match_indent = false
 times = 1
 
+# gosh what's that smell in my PC's CPU?
+
+[[patches]]
+[patches.pattern]
+target = "game.lua"
+pattern = "won = false,"
+position = "after"
+payload = '''
+won_gold = false,
+won_extra = false,
+'''
+match_indent = false
+times = 1
+
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "G.PROFILES[G.SETTINGS.profile].challenge_progress.completed[G.GAME.challenge] = true"
+position = "after"
+payload = '''
+
+if G.GAME.HARDMODE == true then
+    G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_golden[G.GAME.challenge] = true
+end
+
+if G.GAME.YOGICHALLENGEMODE then
+    G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_earl[G.GAME.challenge] = true
+end
+
+
+'''
+match_indent = false
+times = 1

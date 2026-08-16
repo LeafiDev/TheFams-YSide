@@ -1,6 +1,8 @@
 
 assert(SMODS.load_file('src/3drenderer.lua'))()
 
+G.C.EARL = {0.314, 0.22, 0.169, 1}
+
 local mod = SMODS.Mods["y-side"]
 local config = mod.config
 
@@ -224,6 +226,7 @@ assert(SMODS.load_file('src/timers.lua'))()
 assert(SMODS.load_file('src/backs.lua'))()
 assert(SMODS.load_file('src/achievements-yside.lua'))()
 assert(SMODS.load_file('src/luigi.lua'))()
+assert(SMODS.load_file('src/boosters.lua'))()
 assert(SMODS.load_file('src/dynatext.lua'))()
 assert(SMODS.load_file('src/runinfo.lua'))()
 assert(SMODS.load_file('src/pokerhands.lua'))()
@@ -235,6 +238,19 @@ assert(SMODS.load_file('src/stickers.lua'))()
 assert(SMODS.load_file('src/tags.lua'))()
 assert(SMODS.load_file('src/enhancements.lua'))()
 assert(SMODS.load_file('src/challenge-def.lua'))()
+
+assert(SMODS.load_file('src/extra-scripts.lua'))()
+
+
+if not G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_golden then
+    G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_golden = {}
+end
+
+if not G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_earl then
+    G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_earl = {}
+end
+
+
 build_large_textures()
 
 if fams_loaded then
@@ -282,15 +298,17 @@ end
 function yogi_gameover()
     print("u lost hahahahahahahahhahahahaahhaahahhahhhahhahhaha")
 
-    restoreCARDAREA()
-    restoreUIBOX()
-
     if isChallenge("krab") then
         play_sound('yogi_bowomp', 1, 1)
     end
 
     if G.GAME.blind.name == "bl_yogi_graze" then
         play_sound('yogi_break', 1, 1)
+    end
+
+    if G.consumeables and G.jokers then
+        restoreCARDAREA()
+        restoreUIBOX()
     end
 
 
@@ -300,39 +318,98 @@ function yogi_gameover()
 end
 
 function yogi_startgame()
-    G.GAME.reputation = 0
-    G.TIMERTICK = 0
-    if G.YOGIHARDMODE then
-        G.GAME.HARDMODE = true
+    if not G.GAME.alreadystarted then
+        ExtraScriptActivate()
+
+        G.GAME.reputation = 0
+        G.TIMERTICK = 0
+        if G.YOGIHARDMODE then
+            G.GAME.HARDMODE = true
+        end
+        if G.YOGICHALLENGEMODE then
+            G.GAME.YOGICHALLENGEMODE = true
+        end
+
+        G.DASH = false
+        print("setup!")
+        G.wantedfaces = {}
+        G.MOD_TIMERS = {}
+        G.LGalpha = 1
+        G.LGendalpha = 0
+        if not timer_exists("speed") then
+            G.niceloop = false
+        end
+
+        if isChallenge("onemore") and G.GAME.round_resets.ante < 11 then
+            make_timer("onemore", 500, function()
+                ForceLoss()
+            end, false, 1)
+            set_deathwish_timer("onemore")
+        end
+
+        if isChallenge("sun") then
+            G.GAME.base_reroll_cost = 2
+        end
+
+        if has_modifier("ante_up") then
+            G.GAME.win_ante = G.GAME.modifiers.ante_up
+        end
+
+        if has_modifier("set_rep") then
+            G.GAME.reputation = G.GAME.modifiers.set_rep
+        end
+
+        if has_modifier("set_scaling") then
+            G.GAME.starting_params.ante_scaling = G.GAME.modifiers.set_scaling
+        end
+        G.GAME.alreadystarted = true
     end
 
-    G.DASH = false
-    print("setup!")
-    G.wantedfaces = {}
-    G.MOD_TIMERS = {}
-    G.LGalpha = 1
-    G.LGendalpha = 0
-    if not timer_exists("speed") then
-        G.niceloop = false
-    end
 
-    if isChallenge("onemore") and G.GAME.round_resets.ante < 11 then
-        make_timer("onemore", 500, function()
-			ForceLoss()
-		end, false, 1)
-		set_deathwish_timer("onemore")
-    end
 
-    if isChallenge("sun") then
-        G.GAME.base_reroll_cost = 2
-    end
 
-    if has_modifier("ante_up") then
-        G.GAME.win_ante = G.GAME.modifiers.ante_up
-    end
+    if isChallenge("scale") then
 
-    if has_modifier("set_rep") then
-        G.GAME.reputation = G.GAME.modifiers.set_rep
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 0.5,
+            func = function()
+
+                local SC_scale = 1.3
+                G.YOGICOMMUNICATION = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_yogi_yogi'])
+                G.YOGICOMMUNICATION.T.y = G.ROOM.T.h/2 - SC_scale*G.CARD_H/2
+                G.YOGICOMMUNICATION.ambient_tilt = 0.8
+                G.YOGICOMMUNICATION.states.drag.can = false
+                G.YOGICOMMUNICATION.states.hover.can = false
+                G.YOGICOMMUNICATION.no_ui = false
+
+
+                return true
+            end
+        }))
+
+
+        local cutscenetimer = 0
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 0.5,
+            func = function()
+                cutscenetimer = cutscenetimer + 1
+
+                if cutscenetimer == 25 then
+                    G.YOGICOMMUNICATION:juice_up()
+                    G.YOGICOMMUNICATION.edition = {type = "yogi_Premium", money = 12, yogi_Premium = true, key = "e_yogi_Premium"}
+                end
+
+                if cutscenetimer == 55 then
+                    G.YOGICOMMUNICATION.T.x = 18
+                    G.YOGICOMMUNICATION.T.y = 7
+                    G.YOGICOMMUNICATION.T.scale = 0.5
+                end
+                
+                return cutscenetimer > 100
+            end
+        }))
     end
 
     G.YOGIHARDMODE = false
@@ -357,6 +434,67 @@ function pause_trigger()
 end
 
 function eval_trigger()
+    print("winner winner chicken dinner")
+
+    play_sound("yogi_goodjob", 1, 1)
+
+    if isChallenge("scale") then
+
+
+
+        local cutscenetimer = 0
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 0.5,
+            func = function()
+                G.CUTSCENE = true
+                cutscenetimer = cutscenetimer + 1
+
+                if cutscenetimer == 25 then
+                    G.YOGICOMMUNICATION:juice_up()
+                    G.YOGICOMMUNICATION.T.scale = 0.8
+                    G.YOGICOMMUNICATION.T.x = 14
+                    G.YOGICOMMUNICATION.T.y = 4
+                end
+                
+                return cutscenetimer > 100 and love.mouse.isDown(1)
+            end
+        }))
+
+        local cutscenetimer = 0
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 0.5,
+            func = function()
+                G.CUTSCENE = false
+                G.YOGICOMMUNICATION.T.x = 18
+                G.YOGICOMMUNICATION.T.y = 7
+                G.YOGICOMMUNICATION.T.scale = 0.5
+                return true
+            end
+        }))
+
+
+
+
+    end
+
+    if has_modifier("lowest_score") then
+        if G.GAME.round_scores.hand.amt < G.GAME.modifiers.lowest_score then
+            ForceLoss()
+        end
+    end
+
+    if has_modifier("lowest_score_increases") and has_modifier("lowest_score") and G.GAME.blind:get_type() == 'Boss' then
+        print("increased")
+        G.GAME.modifiers.lowest_score = G.GAME.modifiers.lowest_score + G.GAME.modifiers.lowest_score_increases
+        attention_text({
+            scale = 1, text = "Bard Increased", hold = 5, align = 'cm',
+            cover = G.HUD, cover_padding = 1, cover_colour = adjust_alpha(G.C.RED, 0.5)
+        })
+        play_sound('highlight2', 0.65, 0.2)
+        G.GAME.playingboss = false
+    end
 
     if has_modifier("magic") then
 
@@ -390,7 +528,6 @@ function eval_trigger()
     end
 
 
-
     G.DASH = false
 
     if G.GAME.FLAGS.confuserflag then
@@ -407,6 +544,7 @@ function eval_trigger()
             end
         }))
     end
+
 end
 
 
@@ -688,7 +826,6 @@ end
 
 function yogi_blind_set()
     print("setting blind stuff!")
-
     if G.GAME.CHARM == "boost1" then
         for _, card in ipairs(G.deck.cards) do
             card.ability.perma_bonus = card.ability.perma_bonus + 15
@@ -699,13 +836,28 @@ end
 
 function yogi_card_clicked(self)
     if self.debuff and isChallenge("flipmania") then
-        play_sound("yogi_damage", 1, 1)
-        G.GAME.chips = G.GAME.chips - (G.GAME.blind.chips / 10)
-        self:juice_up()
+
+        if G.GAME.YOGICHALLENGEMODE == true then
+
+            play_sound("yogi_damage", 1, 1)
+            ForceLoss()
+            self:juice_up()
+
+        else
+
+            play_sound("yogi_damage", 1, 1)
+            G.GAME.chips = G.GAME.chips - (G.GAME.blind.chips / 10)
+            self:juice_up()
+
+        end
     end
 
     if isChallenge("10") then
-        ease_ante(-0.01);
+        if G.GAME.YOGICHALLENGEMODE then
+            ease_ante(-0.05);
+        else
+            ease_ante(-0.01);
+        end
     end
 
     if G.jokers and self.config.center_key == "j_yogi_5dollar" and G.jokers.cards[self.rank].highlighted == false then
@@ -922,9 +1074,173 @@ yogi_i = 0
     }))
 end
 
+
+
+
+
+
+
+-- challenge
+
+function G.UIDEF.challenges(from_game_over)
+
+    G.inchallenge = false
+
+  if G.PROFILES[G.SETTINGS.profile].all_unlocked then G.PROFILES[G.SETTINGS.profile].challenges_unlocked = #G.CHALLENGES end
+
+  if not G.PROFILES[G.SETTINGS.profile].challenges_unlocked then
+    local deck_wins = 0
+    for k, v in pairs(G.PROFILES[G.SETTINGS.profile].deck_usage) do
+      if v.wins and v.wins[1] then
+        deck_wins = deck_wins + 1
+      end
+    end
+    local loc_nodes = {}
+    localize{type = 'descriptions', key = 'challenge_locked', set = 'Other', nodes = loc_nodes, vars = {G.CHALLENGE_WINS, deck_wins}, default_col = G.C.WHITE}
+
+    return {n=G.UIT.ROOT, config={align = "cm", padding = 0.1, colour = G.C.CLEAR, minh = 8.02, minw = 7}, nodes={
+      transparent_multiline_text(loc_nodes)
+    }}
+  end
+
+  G.run_setup_seed = nil
+  if G.OVERLAY_MENU then 
+    local seed_toggle = G.OVERLAY_MENU:get_UIE_by_ID('run_setup_seed')
+    if seed_toggle then seed_toggle.states.visible = false end
+  end
+
+  
+  local _ch_comp, _ch_tot = 0,#G.CHALLENGES
+  for k, v in ipairs(G.CHALLENGES) do
+    if v.id and G.PROFILES[G.SETTINGS.profile].challenge_progress.completed[v.id or ''] then
+      _ch_comp = _ch_comp + 1
+    end
+  end
+
+  local _ch_tab = {comp = _ch_comp, unlocked = G.PROFILES[G.SETTINGS.profile].challenges_unlocked}
+
+  return {n=G.UIT.ROOT, config={align = "cm", padding = 0.1, colour = G.C.CLEAR, minh = 8, minw = 7}, nodes={
+    {n=G.UIT.R, config={align = "cm", padding = 0.1, r = 0.1 ,colour = G.C.BLACK}, nodes={
+      {n=G.UIT.R, config={align = "cm", padding = 0.1}, nodes={
+        {n=G.UIT.T, config={text = localize('k_challenge_mode'), scale = 0.4, colour = G.C.UI.TEXT_LIGHT, shadow = true}},
+      }},
+      {n=G.UIT.R, config={align = "cm", minw = 8.5, minh = 1.5, padding = 0.2}, nodes={
+        UIBox_button({id = from_game_over and 'from_game_over' or nil, label = {localize('b_new_challenge')}, button = 'challenge_list', minw = 4, scale = 0.4, minh = 0.6}),
+      }},
+      {n=G.UIT.R, config={align = "cm", minh = 0.8, r = 0.1, minw = 4.5, colour = G.C.L_BLACK, emboss = 0.05,
+      progress_bar = {
+        max = _ch_tot, ref_table = _ch_tab, ref_value = 'unlocked', empty_col = G.C.L_BLACK, filled_col = G.C.FILTER
+      }}, nodes={
+        {n=G.UIT.C, config={align = "cm", padding = 0.05, r = 0.1, minw = 4.5}, nodes={
+          {n=G.UIT.T, config={text = localize{type = 'variable', key = 'unlocked', vars = {_ch_tab.unlocked, _ch_tot}}, scale = 0.3, colour = G.C.WHITE, shadow =true}},
+        }},
+      }},
+      {n=G.UIT.R, config={align = "cm", minh = 0.8, r = 0.1, minw = 4.5, colour = G.C.L_BLACK, emboss = 0.05,
+      progress_bar = {
+        max = _ch_tot, ref_table = _ch_tab, ref_value = 'comp', empty_col = G.C.L_BLACK, filled_col = adjust_alpha(G.C.GREEN, 0.5)
+      }}, nodes={
+        {n=G.UIT.C, config={align = "cm", padding = 0.05, r = 0.1, minw = 4.5}, nodes={
+          {n=G.UIT.T, config={text = localize{type = 'variable', key = 'completed', vars = {_ch_comp, _ch_tot}}, scale = 0.3, colour = G.C.WHITE, shadow = true}},
+        }},
+      }},
+    }},
+    G.F_DAILIES and {n=G.UIT.R, config={align = "cm", padding = 0.1, r = 0.1 ,colour = G.C.BLACK}, nodes={
+      {n=G.UIT.R, config={align = "cm", padding = 0.1}, nodes={
+        {n=G.UIT.T, config={text = localize('k_daily_run'), scale = 0.4, colour = G.C.UI.TEXT_LIGHT, shadow = true}},
+      }},
+      {n=G.UIT.R, config={align = "cl", minw = 8.5, minh = 4}, nodes={
+        G.UIDEF.daily_overview()
+      }}
+    }} or nil,
+  }}
+end
+
+function G.UIDEF.challenge_list(from_game_over)
+    G.inchallenge = true
+  G.CHALLENGE_PAGE_SIZE = 10
+  local challenge_pages = {}
+  for i = 1, math.ceil(#G.CHALLENGES/G.CHALLENGE_PAGE_SIZE) do
+    table.insert(challenge_pages, localize('k_page')..' '..tostring(i)..'/'..tostring(math.ceil(#G.CHALLENGES/G.CHALLENGE_PAGE_SIZE)))
+  end
+  G.E_MANAGER:add_event(Event({func = (function()
+    G.FUNCS.change_challenge_list_page{cycle_config = {current_option = 1}}
+  return true end)}))
+
+  local _ch_comp, _ch_tot = 0,#G.CHALLENGES
+  for k, v in ipairs(G.CHALLENGES) do
+    if v.id and G.PROFILES[G.SETTINGS.profile].challenge_progress.completed[v.id or ''] then
+      _ch_comp = _ch_comp + 1
+    end
+  end
+
+  local t = create_UIBox_generic_options({ back_id = from_game_over and 'from_game_over' or nil, back_func = 'setup_run', back_id = 'challenge_list', contents = {
+    {n=G.UIT.C, config={align = "cm", padding = 0.0}, nodes={
+      {n=G.UIT.R, config={align = "cm", padding = 0.1, minh = 7, minw = 4.2}, nodes={
+        {n=G.UIT.O, config={id = 'challenge_list', object = Moveable()}},
+      }},
+      {n=G.UIT.R, config={align = "cm", padding = 0.1}, nodes={
+        create_option_cycle({id = 'challenge_page',scale = 1, h = 1, w = 3.5, options = challenge_pages, cycle_shoulders = true, opt_callback = 'change_challenge_list_page', current_option = 1, colour = G.C.RED, no_pips = true, focus_args = {snap_to = true}})
+      }},
+      {n=G.UIT.R, config={align = "cm", padding = 0.1}, nodes={
+        {n=G.UIT.T, config={text = localize{type = 'variable', key = 'challenges_completed', vars = {_ch_comp, _ch_tot}}, scale = 0.4, colour = G.C.WHITE}},
+      }},
+
+    }},
+    {n=G.UIT.C, config={align = "cm", minh = 9, minw = 11.5}, nodes={
+      {n=G.UIT.O, config={id = 'challenge_area', object = Moveable()}},
+    }},
+  }})
+  return t
+end
+
+
+-- move to patch when done
+function G.UIDEF.challenge_list_page(_page)
+  local snapped = false
+  local challenge_list = {}
+  for k, v in ipairs(G.CHALLENGES) do
+    if k > G.CHALLENGE_PAGE_SIZE*(_page or 0) and k <= G.CHALLENGE_PAGE_SIZE*((_page or 0) + 1) then
+      if G.CONTROLLER.focused.target and G.CONTROLLER.focused.target.config.id == 'challenge_page' then snapped = true end
+      local challenge_completed = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed[v.id or '']
+      local challenge_golden = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_golden[v.id or '']
+      local challenge_extra = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_earl[v.id or '']
+      local challenge_unlocked = G.PROFILES[G.SETTINGS.profile].challenges_unlocked and (G.PROFILES[G.SETTINGS.profile].challenges_unlocked >= k)
+
+      local extra = nil
+      if v.extrarules then
+        extra = {n=G.UIT.C, config={minh = 0.4, minw = 0.4, emboss = 0, r = 0, colour = challenge_extra and G.C.EARL or G.C.BLACK, tooltip = { title = "Extra Completion", text = {"Complete earl's extra challenge"}} }, nodes = {
+            challenge_extra and {n=G.UIT.O, config={object = Sprite(0,0,0.4,0.4, G.ASSET_ATLAS["icons"], {x=1, y=0})}} or nil
+        }}
+      end
+
+      challenge_list[#challenge_list+1] = 
+      {n=G.UIT.R, config={align = "cl"}, nodes={
+        {n=G.UIT.C, config={align = 'cl', minw = 0.8}, nodes = {
+          {n=G.UIT.T, config={text = k..'', scale = 0.4, colour = G.C.WHITE}},
+        }},
+        UIBox_button({id = k, col = true, emboss = 0, hover = true, label = {challenge_unlocked and localize(v.id, 'challenge_names') or localize('k_locked'),}, button = challenge_unlocked and 'change_challenge_description' or 'nil', colour = challenge_unlocked and G.C.EARL or G.C.GREY, minw = 4, scale = 0.4, minh = 0.6, focus_args = {snap_to = not snapped}}),
+        {n=G.UIT.C, config={align = 'cl', padding = 0.05, minw = 0.6}, nodes = {
+          {n=G.UIT.C, config={minh = 0.4, minw = 0.4, emboss = 0, r = 0, colour = challenge_completed and G.C.GREEN or G.C.BLACK, tooltip = { title = "Normal Completion", text = {"Complete the challenge normally"} }}, nodes = {
+            challenge_completed and {n=G.UIT.O, config={object = Sprite(0,0,0.4,0.4, G.ASSET_ATLAS["icons"], {x=1, y=0})}} or nil
+          }},
+          {n=G.UIT.C, config={minh = 0.4, minw = 0.4, emboss = 0, r = 0, colour = challenge_golden and G.C.MONEY or G.C.BLACK, tooltip = { title = "Golden Completion", text = {"Complete the challenge with Gold Stake"} }}, nodes = {
+            challenge_golden and {n=G.UIT.O, config={object = Sprite(0,0,0.4,0.4, G.ASSET_ATLAS["icons"], {x=1, y=0})}} or nil
+          }},
+          extra
+        }},
+      }}      
+      snapped = true
+    end
+  end
+
+  return {n=G.UIT.ROOT, config={align = "cm", padding = 0.1, colour = G.C.CLEAR}, nodes=challenge_list}
+end
+
 function G.UIDEF.challenge_description(_id, daily, is_row)
   local challenge = G.CHALLENGES[_id]
-  if not challenge then return {n=G.UIT.ROOT, config={align = "cm", colour = G.C.BLACK, minh = 8.82, minw = 11.5, r = 0.1}, nodes={{n=G.UIT.T, config={text = localize('ph_select_challenge'), scale = 0.3, colour = G.C.UI.TEXT_LIGHT}}}} end
+
+  G.CHALLENGEREF = challenge
+  if not challenge then return {n=G.UIT.CLEAR, config={align = "cm", colour = G.C.CLEAR, minh = 8.82, minw = 11.5, r = 0.1}, nodes={{n=G.UIT.T, config={text = localize('ph_select_challenge'), scale = 0.3, colour = G.C.UI.TEXT_LIGHT}}}} end
 
   local joker_size = 0.6
   local jokers = CardArea(0,0,
@@ -994,6 +1310,38 @@ function G.UIDEF.challenge_description(_id, daily, is_row)
     }}
   }}
 
+    
+
+    local extrabutton = nil
+    if challenge.extrarules and challenge.extrarules ~= false then
+        local SC_scale = 0.3
+        SC = Card(999 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_yogi_earl'])
+        SC.T.y = G.ROOM.T.h/2 - SC_scale*G.CARD_H/2
+        SC.ambient_tilt = 1
+        SC.states.drag.can = false
+        SC.states.hover.can = false
+        SC.no_ui = true
+        extrabutton = {n=G.UIT.C, config={align = "cm", padding = 0.1, minh = 0.7, minw = 3, r = 0.1, hover = true, colour = G.C.EARL, button = "start_challenge_run_extra", shadow = true, id = _id, tooltip = {title = "EARL'S EXTRA MODE", text = challenge.extrarules}}, nodes={
+            {n=G.UIT.T, config={text = "PLAY EXTRA", scale = 0.5, colour = G.C.UI.TEXT_LIGHT,func = 'set_button_pip', focus_args = {button = 'x',set_button_pip = true}}},
+            {n=G.UIT.O, config={object = SC}}
+        }}
+    end
+
+    local extralabel = nil
+    if challenge.extrarules then
+        local SC_scale = 0.3
+        SC = Card(999 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_yogi_earl'])
+        SC.T.y = G.ROOM.T.h/2 - SC_scale*G.CARD_H/2
+        SC.ambient_tilt = 1
+        SC.states.drag.can = false
+        SC.states.hover.can = false
+        SC.no_ui = true
+        extralabel = {n=G.UIT.C, config={align = "cm", padding = 0.1, minh = 0.7, minw = 0.2, r = 1, hover = true, colour = G.C.EARL, shadow = true, id = _id, tooltip = {title = "EARL'S EXTRA MODE", text = challenge.extrarules}}, nodes={
+            
+            {n=G.UIT.O, config={object = SC}}
+        }}
+    end
+
   
 
   return {n=is_row and G.UIT.R or G.UIT.ROOT, config={align = "cm", r = 0.1, colour = G.C.BLACK}, nodes={
@@ -1018,23 +1366,56 @@ function G.UIDEF.challenge_description(_id, daily, is_row)
         tab_h = 5,
         padding = 0,
         text_scale = 0.36,
-        scale = 0.85,
+        scale = 1,
         no_shoulders = true,
         no_loop = true}
-    )}},
+    ),
+    }},
+
+    is_row and {n=G.UIT.R, config={align = "cm", minh = 0.9}, nodes={
+        extralabel
+    }} or nil,
+
+    {n=G.UIT.R, config={align = "cm", padding = 0.1}, nodes={
+      {n=G.UIT.T, config={text = "View Banned Items in Run Info", scale = 0.4, colour = G.C.UI.TEXT_LIGHT,func = 'set_button_pip', focus_args = {button = 'x',set_button_pip = true}}}
+    }},
     not is_row and {n=G.UIT.R, config={align = "cm", minh = 0.9}, nodes={
-      {n=G.UIT.R, config={align = "cm", padding = 0.1, minh = 0.7, minw = 9, r = 0.1, hover = true, colour = G.C.BLUE, button = "start_challenge_run", shadow = true, id = _id}, nodes={
+      {n=G.UIT.C, config={align = "cm", padding = 0.1, minh = 0.7, minw = 3, r = 0.1, colour = G.C.BLUE, button = "start_challenge_run", shadow = true, id = _id}, nodes={
         {n=G.UIT.T, config={text = localize('b_play_cap'), scale = 0.5, colour = G.C.UI.TEXT_LIGHT,func = 'set_button_pip', focus_args = {button = 'x',set_button_pip = true}}}
       }},
-      {n=G.UIT.R, config={align = "cm", padding = 0.1, minh = 0.7, minw = 9, r = 0.1, hover = true, colour = G.C.MONEY, button = "start_challenge_run", shadow = true, id = _id}, nodes={
+      {n=G.UIT.C, config={align = "cm", padding = 0.1, minh = 0.7, minw = 3, r = 0.1, colour = G.C.MONEY, button = "start_challenge_run_gold", shadow = true, id = _id}, nodes={
         {n=G.UIT.T, config={text = "GOLD STAKE PLAY", scale = 0.5, colour = G.C.UI.TEXT_LIGHT,func = 'set_button_pip', focus_args = {button = 'x',set_button_pip = true}}}
-      }}
+      }},
+      extrabutton or nil
     }} or nil,
   }}
 end
 
 G.FUNCS.start_challenge_run = function(e)
   if G.OVERLAY_MENU then G.FUNCS.exit_overlay_menu() end
+  G.FUNCS.start_run(e, {stake = 1, challenge = G.CHALLENGES[e.config.id]})
+  G.YOGIHARDMODE = true
+  G.inchallenge = false
+end
+
+G.FUNCS.start_challenge_run_gold = function(e)
+  if G.OVERLAY_MENU then G.FUNCS.exit_overlay_menu() end
   G.FUNCS.start_run(e, {stake = 8, challenge = G.CHALLENGES[e.config.id]})
   G.YOGIHARDMODE = true
+  G.inchallenge = false
+end
+
+G.FUNCS.start_challenge_run_extra = function(e)
+  if G.OVERLAY_MENU then G.FUNCS.exit_overlay_menu() end
+  G.FUNCS.start_run(e, {stake = 1, challenge = G.CHALLENGES[e.config.id]})
+  G.YOGICHALLENGEMODE = true
+  G.inchallenge = false
+end
+
+-- extra completion checks
+G.EXTRACHECK = {}
+for k, v in ipairs(G.CHALLENGES) do
+    if v.extrarules then
+        table.insert(G.EXTRACHECK, v.original_key)
+    end
 end

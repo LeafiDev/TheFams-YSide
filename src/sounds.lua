@@ -203,6 +203,13 @@ SMODS.Sound {
 }
 
 SMODS.Sound {
+  key = "goodjob",
+  pitch = 1,
+  volume = 1,
+  path = "goodjob.ogg"
+}
+
+SMODS.Sound {
   key = "weaponpull",
   pitch = 1,
   volume = 1,

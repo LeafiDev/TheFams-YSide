@@ -214,6 +214,11 @@ ForceLoss = function()
 end
 
 G.yogi_update = function(dt)
+	updateDelta = dt
+	if G.GAME and G.GAME.blind and G.GAME.blind:get_type() == 'Boss' then
+		print(G.GAME.blind:get_type())
+		G.GAME.playingboss = true
+	end
 
 	position = G.get_song_position()
 	beatdur = 60 / G.BPM or 120
@@ -237,10 +242,17 @@ G.yogi_update = function(dt)
 	end
 
 	if isChallenge("krab") and not run_lost() and not timer_exists("krab") then
-		make_timer("krab", 150, function()
-			ForceLoss()
-		end, false, 0.2)
-		set_deathwish_timer("krab")
+		if G.YOGICHALLENGEMODE == true then
+			make_timer("krab", 90, function()
+				ForceLoss()
+			end, false, 0.2)
+			set_deathwish_timer("krab")
+		else
+			make_timer("krab", 150, function()
+				ForceLoss()
+			end, false, 0.2)
+			set_deathwish_timer("krab")
+		end
 		G.GAME.win_ante = 6
     end
 
@@ -309,8 +321,8 @@ G.yogi_update = function(dt)
 	end
 
 	if has_modifier("cardlimit") and G and G.GAME and G.GAME.hands_played then
-		G.CONDITIONALS.text = G.CONDITIONALS.text .. "Do not play more than 24 hands total\n" .. "Highest Score " .. tostring(G.GAME.hands_played) .. "/24\n"
-		if G.GAME.hands_played > 24 then
+		G.CONDITIONALS.text = G.CONDITIONALS.text .. "Do not play more than "..tostring(G.GAME.modifiers.cardlimit).. " hands total\n" .. "Highest Score " .. tostring(G.GAME.hands_played) .. "/"..tostring(G.GAME.modifiers.cardlimit).."\n"
+		if G.GAME.hands_played > G.GAME.modifiers.cardlimit then
 			ForceLoss()
 		end
 	end
@@ -328,6 +340,18 @@ G.yogi_update = function(dt)
 			set_deathwish_timer("late")
 			G.GAME.win_ante = 4
 		end
+	end
+
+	if has_modifier("lowest_score") then
+		G.CONDITIONALS.text = G.CONDITIONALS.text .. "\nEnd each blind with\nyour highest hand being\nmore than the chip bard ("..tostring(G.GAME.modifiers.lowest_score)..")\n"
+	end
+
+	if has_modifier("lowest_score_increases") then
+		G.CONDITIONALS.text = G.CONDITIONALS.text .. "\nchip bard will increase by "..tostring(G.GAME.modifiers.lowest_score_increases).."\nafter defeating boss blind\n"
+	end
+
+	if has_modifier("rep_required") then
+		G.CONDITIONALS.text = G.CONDITIONALS.text .. "Have a reputation of at least\n"..tostring(G.GAME.modifiers.rep_required).." before ante "..tostring(G.GAME.win_ante).."\n"
 	end
 
 	if has_modifier("flipryth") then
@@ -888,24 +912,52 @@ G.yogi_draw_front = function()
 if isChallenge("flipmania") then
 
 
-	if G.GAME.FLIPSPEED then G.GAME.FLIPSPEED = G.GAME.round_resets.ante end
-	
-	local i = 0
-	if G.hand and G.hand.cards then
-		for _, card in ipairs(G.hand.cards) do
-			i = i + 1
+	if G.GAME.YOGICHALLENGEMODE == true then
 
-			local speed = (G.TIMERS.REAL * (G.GAME.FLIPSPEED or 1))
+		if G.GAME.FLIPSPEED then 
+			G.GAME.FLIPSPEED = G.GAME.round_resets.ante * 2
+		end
 
-			local valid = math.floor((speed % #G.hand.cards * 1.5) + 1) == 1 * i or math.floor((speed % #G.hand.cards * 1.5) + 1) - 1 == 1 * i or math.floor((speed % #G.hand.cards * 1.5) + 1) - 2 == 1 * i
-			if G.hand and valid then
+		local i = 0
+		if G.hand and G.hand.cards then
+			for _, card in ipairs(G.hand.cards) do
+				i = i + 1
 
-				if not card.debuff then card:juice_up() end
-				card.debuff = true
-			else
-				card.debuff = false
+				local speed = (G.TIMERS.REAL * (G.GAME.FLIPSPEED or 1))
+
+				local valid = math.floor((speed % #G.hand.cards * 1.5) + 1) == 1 * i or math.floor((speed % #G.hand.cards * 1.5) + 1) - 1 == 1 * i or math.floor((speed % #G.hand.cards * 1.5) + 1) - 2 == 1 * i
+				if G.hand and valid then
+
+					if not card.debuff then card:juice_up() end
+					card.debuff = true
+				else
+					card.debuff = false
+				end
 			end
 		end
+
+	else
+
+		if G.GAME.FLIPSPEED then G.GAME.FLIPSPEED = G.GAME.round_resets.ante end
+
+		local i = 0
+		if G.hand and G.hand.cards then
+			for _, card in ipairs(G.hand.cards) do
+				i = i + 1
+
+				local speed = (G.TIMERS.REAL * (G.GAME.FLIPSPEED or 1))
+
+				local valid = math.floor((speed % #G.hand.cards * 1.5) + 1) == 1 * i or math.floor((speed % #G.hand.cards * 1.5) + 1) - 1 == 1 * i or math.floor((speed % #G.hand.cards * 1.5) + 1) - 2 == 1 * i
+				if G.hand and valid then
+
+					if not card.debuff then card:juice_up() end
+					card.debuff = true
+				else
+					card.debuff = false
+				end
+			end
+		end
+		
 	end
 end
 

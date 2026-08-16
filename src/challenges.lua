@@ -35,7 +35,9 @@ SMODS.Challenge {
 	banned_other = {}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"Condition increased to {C:attention,E:1}1000${}", "Set Ante to 2"}
 }
 
 SMODS.Challenge {
@@ -63,7 +65,9 @@ SMODS.Challenge {
 	banned_other = {}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"Card play limit reduced to 18"}
 }
 
 SMODS.Challenge {
@@ -92,7 +96,9 @@ SMODS.Challenge {
 	banned_other = {}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"Joker slots set to 4", "timer reduced to 90 seconds"}
 }
 
 SMODS.Challenge {
@@ -120,7 +126,9 @@ SMODS.Challenge {
 	banned_other = {}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = false
 }
 
 SMODS.Challenge {
@@ -177,7 +185,9 @@ SMODS.Challenge {
   {id = "bl_window", type = "blind"}, {id = "bl_pillar", type = "blind"}, {id = "bl_head", type = "blind"}}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"Speed is {C:purple,E:yogi_wheel}doubled{}", "clicking a debuff card {C:red}ends the run{}"}
 }
 
 SMODS.Challenge {
@@ -235,6 +245,36 @@ SMODS.Challenge {
 }
 
 SMODS.Challenge {
+  key = 'scale',
+  loc_txt = {
+	name = "Operation Scaling",
+	text = {''}
+  },
+  jokers = {{id = "j_yogi_earl", eternal = true}, {id = "j_yogi_bear", eternal = true}},
+  deck = {
+	type = 'Challenge Deck'
+  },
+  button_colour = G.C.BLUE,
+  rules = {
+	custom = {{id = "set_scaling", value = 2}, {id = "lowest_score", value = 0}, {id = "lowest_score_increases", value = 750} },
+	modifiers = {
+    {id = "hands", value = 6},
+    {id = "dollars", value = 30},
+	}
+  },
+  restrictions = {
+		banned_cards = {
+		},
+	banned_tags = {},
+	banned_other = {}
+  },
+  consumeables = {},
+  vouchers = {},
+
+  extrarules = {"ante scaling increased to 2.4", "chip bard increase becomes 1200"}
+}
+
+SMODS.Challenge {
   key = 'ASP',
   loc_txt = {
 	name = "All Star Payout",
@@ -258,7 +298,9 @@ SMODS.Challenge {
 	banned_other = {}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"Required Reputation becomes 40", "Ante set to 9"}
 }
 
 SMODS.Challenge {
@@ -286,7 +328,9 @@ SMODS.Challenge {
 	banned_other = {}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"Adds a chip bard starting at 100", "bard increases by 150 every boss blind defeated"}
 }
 
 SMODS.Challenge {
@@ -313,7 +357,9 @@ SMODS.Challenge {
 	banned_other = {}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"decreases ante by 0.05 per card click"}
 }
 
 SMODS.Challenge {
@@ -370,3 +416,8 @@ SMODS.Challenge {
   consumeables = {},
   vouchers = {}
 }
+
+
+
+
+

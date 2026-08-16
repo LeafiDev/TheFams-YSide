@@ -79,6 +79,15 @@ return {
             ch_c_scorelimit = {
                 "You cannot score beyond {C:attention}#1# chips{} at a time or you {C:red,E:yogi_shake}explode{}"
             },
+            ch_c_set_scaling = {
+                "Ante Scaling set to #1#"
+            },
+            ch_c_lowest_score = {
+                "At the end of a blind your best hand must be above #1#"
+            },
+            ch_c_lowest_score_increases = {
+                "Every boss blind increase lowest chip bard by #1#"
+            },
         },
     },
 }
