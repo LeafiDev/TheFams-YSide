@@ -245,36 +245,6 @@ SMODS.Challenge {
 }
 
 SMODS.Challenge {
-  key = 'scale',
-  loc_txt = {
-	name = "Operation Scaling",
-	text = {''}
-  },
-  jokers = {{id = "j_yogi_earl", eternal = true}, {id = "j_yogi_bear", eternal = true}},
-  deck = {
-	type = 'Challenge Deck'
-  },
-  button_colour = G.C.BLUE,
-  rules = {
-	custom = {{id = "set_scaling", value = 2}, {id = "lowest_score", value = 0}, {id = "lowest_score_increases", value = 750} },
-	modifiers = {
-    {id = "hands", value = 6},
-    {id = "dollars", value = 30},
-	}
-  },
-  restrictions = {
-		banned_cards = {
-		},
-	banned_tags = {},
-	banned_other = {}
-  },
-  consumeables = {},
-  vouchers = {},
-
-  extrarules = {"ante scaling increased to 2.4", "chip bard increase becomes 1200"}
-}
-
-SMODS.Challenge {
   key = 'ASP',
   loc_txt = {
 	name = "All Star Payout",
@@ -301,6 +271,43 @@ SMODS.Challenge {
   vouchers = {},
 
   extrarules = {"Required Reputation becomes 40", "Ante set to 9"}
+}
+
+SMODS.Challenge {
+  key = 'SATS',
+  loc_txt = {
+	name = "Steep Slopes",
+	text = {''}
+  },
+  jokers = {},
+  deck = {
+	type = 'Challenge Deck'
+  },
+  button_colour = G.C.GREEN,
+  rules = {
+	custom = {{id = "no_shop_jokers"}},
+	modifiers = {
+        
+	}
+  },
+  restrictions = {
+		banned_cards = {
+      {id = "c_judgement"},
+      {id = "c_wraith"},
+      {id = "c_soul"},
+      {id = "j_riff_raff"},
+      {id = "tag_uncommon"},
+      {id = "tag_rare"},
+      {id = "tag_top_up"},
+      {id = "p_buffoon_normal_1"},
+      {id = "p_buffoon_jumbo_1"},
+      {id = "p_buffoon_mega_1"}
+  },
+	banned_tags = {},
+	banned_other = {}
+  },
+  consumeables = {{id = 'c_yogi_boosttarot'},{id = 'c_yogi_boosttarot'},{id = 'c_yogi_boosttarot'},{id = 'c_yogi_boosttarot'},{id = 'c_yogi_boosttarot'}},
+  vouchers = {}
 }
 
 SMODS.Challenge {
@@ -360,33 +367,6 @@ SMODS.Challenge {
   vouchers = {},
 
   extrarules = {"decreases ante by 0.05 per card click"}
-}
-
-SMODS.Challenge {
-  key = 'sun',
-  loc_txt = {
-	name = "Acquire Canine(s)",
-	text = {''}
-  },
-  jokers = {},
-  deck = {
-	type = 'Challenge Deck'
-  },
-  button_colour = G.C.ORANGE,
-  rules = {
-	custom = {},
-	modifiers = {
-    
-	}
-  },
-  restrictions = {
-		banned_cards = {
-		},
-	banned_tags = {},
-	banned_other = {}
-  },
-  consumeables = {},
-  vouchers = {}
 }
 
 SMODS.Challenge {

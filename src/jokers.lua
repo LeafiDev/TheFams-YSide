@@ -131,7 +131,12 @@ SMODS.Atlas {
     py = 95
 }
 
-
+SMODS.Atlas {
+    key = "clark",
+    path = "clark.png",
+    px = 71,
+    py = 95
+}
 
 
 
@@ -208,6 +213,7 @@ SMODS.Joker {
 	atlas = 'jokers',
 	pos = { x = 0, y = 0 },
 	cost = 8,
+    no_collection = fams_loaded,
 loc_vars = function(self, info_queue, card)
 	local dollars = G.GAME.dollars or 1
 	local to_eat = math.min(math.floor(dollars / 2), 10)
@@ -246,6 +252,7 @@ SMODS.Joker {
 	atlas = 'jokers',
 	pos = { x = 1, y = 0 },
 	cost = 8,
+    no_collection = fams_loaded,
 loc_vars = function(self, info_queue, card)
 	local dollars = G.GAME.dollars or 1
 	local to_eat = math.min(math.floor(dollars / 2), 10)
@@ -282,6 +289,7 @@ SMODS.Joker {
 	atlas = 'jokers',
 	pos = { x = 2, y = 0 },
 	cost = 8,
+    no_collection = fams_loaded,
 loc_vars = function(self, info_queue, card)
 	local dollars = G.GAME.dollars or 1
 	local to_eat = math.min(math.floor(dollars / 2), 5)
@@ -319,6 +327,7 @@ SMODS.Joker {
 	cost = 2,
 	atlas = 'jokers',
 	pos = { x = 3, y = 0 },
+    no_collection = fams_loaded,
 calculate = function(self, card, context)
 	   if context.joker_main then
 
@@ -357,7 +366,7 @@ SMODS.Joker {
 	config = { mult = 0 }, 
 	rarity = 1,
 	cost = 5, 
-
+    no_collection = fams_loaded,
 	calculate = function(self, card, context)
  		if context.individual and context.cardarea == G.play then
  			if context.other_card.base.suit == 'Diamonds' then
@@ -386,8 +395,6 @@ SMODS.Joker {
 	badges[#badges+1] = create_badge("DAWG", {0.7, 0.4, 0.1, 1}, G.C.WHITE, 1.2)
 end,
 }
-
-
 
 
 
@@ -1215,3 +1222,39 @@ SMODS.Joker {
 }
 
 
+SMODS.Joker {
+    key = "clark",
+    loc_txt = {
+        name = "{E:yogi_shake}You're being too loud...{}",
+        text = {
+            "for each hand that this Joker isn't dragged",
+            "{C:red}+3{} Mult",
+            "{C:inactive}Currently{} {C:red}+#1#{}"
+
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+
+        return { vars = { card.ability.extra.multer or 0 } }
+    end,
+    blueprint_compat = true,
+    eternal_compat = true,
+    config = { extra = { multer = 0 } },
+    cost = 3,
+    unlocked = true,
+    rarity = 2,
+    atlas = "clark",
+    pos = { x = 0, y = 0 },
+    
+    calculate = function(self, card, context)
+        
+        if context.joker_main then
+            card.ability.extra.multer = card.ability.extra.multer + 3
+            return {mult = card.ability.extra.multer}
+        end
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+    
+    end
+}

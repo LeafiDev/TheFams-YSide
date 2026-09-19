@@ -15,22 +15,6 @@ SMODS.ConsumableType{
 }
 
 SMODS.ConsumableType{
-    key = "armor",
-    primary_colour = {1, 0.498, 0.153, 1},
-    secondary_colour = {1, 0.498, 0.153, 1},
-    loc_txt = {
-        name = "ARMOR",
-        collection = "ARMOR",
-        undiscovered = {
-            name = "???",
-            text = {"This ARMOR has not been discovered yet."},
-        },
-    },
-    collection_rows = {5},
-    shop_rate = 0.4,
-}
-
-SMODS.ConsumableType{
     key = "charm",
     primary_colour = {0.667, 0.153, 1, 1},
     secondary_colour = {0.667, 0.153, 1, 1},
@@ -109,6 +93,13 @@ SMODS.Atlas {
     py = 95
 }
 
+SMODS.Atlas {
+    key = "undefine",
+    path = "undefine.png",
+    px = 71,
+    py = 95
+}
+
 
 SMODS.Consumable {
     key = "boosttarot",
@@ -129,65 +120,6 @@ SMODS.Consumable {
     end,
 	can_use = function(self, card)
     return amountselected() <= 5 and amountselected() ~= 0
-end
-}
-
-SMODS.Consumable {
-    key = "boosttarot2",
-    set = "Spectral",
-    loc_txt = {
-        name = "NOT Mountain",
-        text = {"Applies {C:chips,E:1}Bloost{} to 5 cards"}
-    },
-    atlas = "boosttarot",
-    pos = { x = 0, y = 0 },
-    cost = 3,
-	use = function(self, card)
-        G.E_MANAGER:add_event(Event({
-            trigger = 'after',
-            delay = 0.4,
-            func = function()
-                G.target = SMODS.add_card({ set = 'Joker', legendary = true})
-                check_for_unlock { type = 'spawn_legendary' }
-                play_sound('yogi_sfx_cardappear', 1, 1)
-                return true
-            end
-        }))
-
-        local wobble = 5000
-        local side = 1
-
-        G.E_MANAGER:add_event(Event({
-            trigger = 'after',
-            delay = 0,
-            func = function()
-
-                if side == 1 then
-                    side = -1
-                else
-                    side = 1
-                end
-
-                G.target.CT.x = (wobble * side) + 8.75
-
-                
-
-                wobble = wobble + ((0 - wobble ) / 9)
-                return wobble < 1
-            end
-        }))
-
-        G.E_MANAGER:add_event(Event({
-            trigger = 'after',
-            delay = 0,
-            func = function()
-                play_sound("yogi_mus_sfx_a_grab", 1, 1)
-                return true;
-            end
-        }))
-    end,
-	can_use = function(self, card)
-    return true
 end
 }
 
@@ -298,22 +230,17 @@ SMODS.Consumable {
 }
 
 SMODS.Consumable {
-    key = "trad",
+    key = "undefine",
     set = "armor",
     loc_txt = {
-        name = "LifeStabil",
-        text = {"While Equipped", "When you reach your last hand if discards are more than 1", "swap hands and discards"}
+        name = "UnknoPrism",
+        text = {"While Equipped", "When your hand is played", "Set your hands to something random"}
     },
     loc_vars = function(self, info_queue, card)
-
-        local returner = nil
-        if G.GAME.current_round.discards_left > 1 then
-            returner = "gain" 
-        end
         
         return { vars = {  } }
     end,
-    atlas = "tradmaker",
+    atlas = "undefine",
     config = { extra = { stats = {atk = 0, def = 0, agl = 0} } },
     pos = { x = 0, y = 0 },
     cost = 8,
@@ -322,7 +249,7 @@ SMODS.Consumable {
     end,
 
     use = function(self, card)
-        G.GAME.ARMOR = "stabil"
+        G.GAME.ARMOR = "unow"
         G.GAME.ARMOR_NAME = card.label
     end,
 

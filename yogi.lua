@@ -1,6 +1,6 @@
 
 assert(SMODS.load_file('src/3drenderer.lua'))()
-
+G.drag_call = true
 G.C.EARL = {0.314, 0.22, 0.169, 1}
 
 local mod = SMODS.Mods["y-side"]
@@ -194,6 +194,7 @@ end
 YGMod = {}
 
 
+if not fams_loaded then
 
 SMODS.Atlas {
     key = "balatro",
@@ -206,7 +207,7 @@ SMODS.Atlas {
     }
 }
 
-
+end
 
 
 
@@ -646,7 +647,7 @@ end
                 play_sound("yogi_japhit", 1.02, 1)
                 SMODS.add_card  {
                     set = "Joker",           
-                    edition = "e_polychrome",      
+                    edition = "e_premium",      
                     legendary = false,            
                     key = "j_yogi_yogi",
                     skip_materialize = false,     
@@ -740,6 +741,19 @@ function yogi_press_play()
         G.GAME.current_round.discards_left = G.GAME.current_round.discards_left + 1
     end
 
+    if G.GAME.ARMOR == "unow" then
+        print("prism Effect")
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 1,
+            func = function()
+                play_sound("yogi_coin", 0.5, 1)
+                G.GAME.current_round.hands_left = math.random(0, 8)
+                return true
+            end
+        }))
+    end
+
     if G.GAME.CHARM == "confuser" and not G.GAME.FLAGS.confuserflag then
         print("confuser Effect")
         G.GAME.FLAGS.confuserflag = true
@@ -821,6 +835,19 @@ function yogi_add_game(self)
         self.GAME.cutscene3 = false
     end
 
+end
+
+
+
+function yogi_dragged(joker)
+    if joker.config.center_key == "j_yogi_clark" and joker.states.drag.is == true then
+        if joker.ability.extra.multer then
+            joker.ability.extra.multer = 0
+            joker:juice_up()
+        end
+    end
+
+    G.drag_call = false
 end
 
 
@@ -912,168 +939,171 @@ SMODS.current_mod.custom_card_areas = function(game)
 end
 
 
-function Game:splash_screen()
-yogi_i = 0
-    --If the skip splash screen option is set, immediately go to the main menu here
-    if G.SETTINGS.skip_splash == 'Yes' then 
-        G:main_menu()
-        return 
-    end
+if not fams_loaded then
 
-    G.CUTSCENE = true
+    function Game:splash_screen()
+    yogi_i = 0
+        --If the skip splash screen option is set, immediately go to the main menu here
+        if G.SETTINGS.skip_splash == 'Yes' then 
+            G:main_menu()
+            return 
+        end
 
-    self:prep_stage(G.STAGES.MAIN_MENU, G.STATES.SPLASH, true)
-    G.E_MANAGER:add_event(Event({
-        func = (function()
-            discover_card()
+        G.CUTSCENE = true
+
+        self:prep_stage(G.STAGES.MAIN_MENU, G.STATES.SPLASH, true)
+        G.E_MANAGER:add_event(Event({
+            func = (function()
+                discover_card()
+                return true
+            end)
+        }))
+
+        G.E_MANAGER:add_event(Event({
+            trigger = 'immediate',
+            func = (function()
+                G.TIMERS.TOTAL = 0
+                G.TIMERS.REAL = 0
+                --Prep the splash screen shaders for both the background(colour swirl) and the foreground(white flash), starting at black
+                G.SPLASH_BACK = Sprite(-30, -13, G.ROOM.T.w+60, G.ROOM.T.h+22, G.ASSET_ATLAS["ui_1"], {x = 2, y = 0})
+                G.SPLASH_BACK:define_draw_steps({{
+                    shader = 'splash',
+                    send = {
+                        {name = 'time', ref_table = G.TIMERS, ref_value = 'REAL'},
+                        {name = 'vort_speed', val = 1},
+                        {name = 'colour_1', ref_table = G.C, ref_value = 'ORANGE'},
+                        {name = 'colour_2', ref_table = G.C, ref_value = 'MONEY'},
+                        {name = 'mid_flash', val = 0},
+                        {name = 'vort_offset', val = (8*yogi_i*os.time())%10000000000000000000},
+                    }}})
+                G.SPLASH_BACK:set_alignment({
+                    major = G.ROOM_ATTACH,
+                    type = 'cm',
+                    offset = {x=0,y=0}
+                })
+                G.SPLASH_FRONT = Sprite(0,-20, G.ROOM.T.w*2, G.ROOM.T.h*4, G.ASSET_ATLAS["ui_1"], {x = 2, y = 0})
+                G.SPLASH_FRONT:define_draw_steps({{
+                    shader = 'flash',
+                    send = {
+                        {name = 'time', ref_table = G.TIMERS, ref_value = 'REAL'},
+                        {name = 'mid_flash', val = 1}
+                    }}})
+                G.SPLASH_FRONT:set_alignment({
+                    major = G.ROOM_ATTACH,
+                    type = 'cm',
+                    offset = {x=0,y=0}
+                })
+
+                --spawn in splash card
+                local SC = nil
+                G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2,func = (function()
+
+                    local SC_scale = 1.3
+                    SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_yogi_yogi'])
+                    SC.T.y = G.ROOM.T.h/2 - SC_scale*G.CARD_H/2
+                    SC.ambient_tilt = 0
+                    SC.states.drag.can = false
+                    SC.states.hover.can = false
+                    SC.no_ui = true
+
+                    G.VIBRATION = G.VIBRATION + 2
+
+                    play_sound('whoosh1', 0.7, 0.2)
+                    play_sound('introPad1', 0.704, 0.6)
+                return true;end)}))
+
+                --dissolve fool card and start to fade in the vortex
+                G.E_MANAGER:add_event(Event({trigger = 'after',delay = 1.8,func = (function() --|||||||||||
+                print(startupframe)
+                    SC:start_dissolve({G.C.CHIPS, G.C.CHIPS},true, 12, true)
+                    play_sound('magic_crumple', 1, 0.5)
+                    play_sound('splash_buildup', 1, 0.7)
+                return true;end)}))
+
+                --create all the cards and suck them in
+                function make_splash_card(args)
+                    args = args or {}
+                    local angle = math.random()*2*3.14
+                    local card_size = (args.scale or 1.5)*(math.random() + 1)
+                    local card_pos = args.card_pos or {
+                        x = (18 + card_size)*math.sin(angle),
+                        y = (18 + card_size)*math.cos(angle)
+                    }
+                    local center = G.P_CENTERS.c_base
+                    local face = pseudorandom_element(G.P_CARDS)
+                    -- small chance to spawn a random mod 'yogi' joker instead of a regular playing card
+                        local yogi = {}
+                        for k, _ in pairs(G.P_CENTERS or {}) do
+                            if type(k) == 'string' and (k:match('^j_yogi_') or k:match('^c_yogi_') or k:match('^bl_yogi_') or k:match('^tag_yogi_')) and not k:match('^j_yogi_skeleton') and not k:match('^c_yogi_A') then table.insert(yogi, k) end
+                        end
+                        if #yogi > 0 then
+                            local chosen = yogi[math.random(#yogi)]
+                            center = G.P_CENTERS[chosen] or center
+                            face = nil
+                        end
+                    local card = Card(  card_pos.x + G.ROOM.T.w/2 - G.CARD_W*card_size/2,
+                                        card_pos.y + G.ROOM.T.h/2 - G.CARD_H*card_size/2,
+                                        card_size*G.CARD_W, card_size*G.CARD_H, face, center)
+                    if math.random() > 1.1 then card.sprite_facing = 'back'; card.facing = 'back' end
+                    card.no_shadow = true
+                    card.states.hover.can = false
+                    card.states.drag.can = false
+                    card.vortex = true and not args.no_vortex
+                    card.T.r = angle
+                    return card, card_pos
+                end
+
+                G.vortex_time = G.TIMERS.REAL
+                local temp_del = nil
+
+                for i = 1, 300 do
+                    temp_del = temp_del or 3
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        blockable = false,
+                        delay = temp_del,
+                        func = (function()
+                        local card, card_pos = make_splash_card({scale = 2 - i/300})
+                        local speed = math.max(2. - i*0.005, 0.001)
+                        ease_value(card.T, 'scale', -card.T.scale, nil, nil, nil, 1.*speed)
+                        ease_value(card.T, 'x', -card_pos.x, nil, nil, nil, 0.9*speed)
+                        ease_value(card.T, 'y', -card_pos.y, nil, nil, nil, 0.9*speed)
+                        local temp_pitch = i*0.007 + 0.6
+                        local temp_i = i
+                        G.E_MANAGER:add_event(Event({
+                            blockable = false,
+                            func = (function()
+                                if card.T.scale <= 0 then
+                                    if temp_i < 30 then 
+                                        play_sound('whoosh1', temp_pitch + math.random()*0.05, 0.25*(1 - temp_i/50))
+                                    end
+
+                                    if temp_i == 15 then
+                                        play_sound('whoosh_long',0.9, 0.7)
+                                    end
+                                    G.VIBRATION = G.VIBRATION + 0.1
+                                    card:remove()
+                                    return true
+                                end
+                            end)}))
+                            return true
+                        end)}))
+                        temp_del = temp_del + math.max(1/(i), math.max(0.2*(170-i)/500, 0.016))
+                end
+
+                --when faded to white, spit out the 'Fool's' cards and slowly have them settle in to place
+                G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = (function()
+                    G.SPLASH_BACK:remove()
+                    G.SPLASH_BACK = G.SPLASH_FRONT
+                    G.SPLASH_FRONT = nil
+                    G:main_menu('splash')
+                return true;end)}))
             return true
         end)
-      }))
-
-      G.E_MANAGER:add_event(Event({
-        trigger = 'immediate',
-        func = (function()
-            G.TIMERS.TOTAL = 0
-            G.TIMERS.REAL = 0
-            --Prep the splash screen shaders for both the background(colour swirl) and the foreground(white flash), starting at black
-            G.SPLASH_BACK = Sprite(-30, -13, G.ROOM.T.w+60, G.ROOM.T.h+22, G.ASSET_ATLAS["ui_1"], {x = 2, y = 0})
-            G.SPLASH_BACK:define_draw_steps({{
-                shader = 'splash',
-                send = {
-                    {name = 'time', ref_table = G.TIMERS, ref_value = 'REAL'},
-                    {name = 'vort_speed', val = 1},
-                    {name = 'colour_1', ref_table = G.C, ref_value = 'ORANGE'},
-                    {name = 'colour_2', ref_table = G.C, ref_value = 'MONEY'},
-                    {name = 'mid_flash', val = 0},
-                    {name = 'vort_offset', val = (8*yogi_i*os.time())%10000000000000000000},
-                }}})
-            G.SPLASH_BACK:set_alignment({
-                major = G.ROOM_ATTACH,
-                type = 'cm',
-                offset = {x=0,y=0}
-            })
-            G.SPLASH_FRONT = Sprite(0,-20, G.ROOM.T.w*2, G.ROOM.T.h*4, G.ASSET_ATLAS["ui_1"], {x = 2, y = 0})
-            G.SPLASH_FRONT:define_draw_steps({{
-                shader = 'flash',
-                send = {
-                    {name = 'time', ref_table = G.TIMERS, ref_value = 'REAL'},
-                    {name = 'mid_flash', val = 1}
-                }}})
-            G.SPLASH_FRONT:set_alignment({
-                major = G.ROOM_ATTACH,
-                type = 'cm',
-                offset = {x=0,y=0}
-            })
-
-            --spawn in splash card
-            local SC = nil
-            G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2,func = (function()
-
-                local SC_scale = 1.3
-                SC = Card(G.ROOM.T.w/2 - SC_scale*G.CARD_W/2, 10. + G.ROOM.T.h/2 - SC_scale*G.CARD_H/2, SC_scale*G.CARD_W, SC_scale*G.CARD_H, G.P_CARDS.empty, G.P_CENTERS['j_yogi_yogi'])
-                SC.T.y = G.ROOM.T.h/2 - SC_scale*G.CARD_H/2
-                SC.ambient_tilt = 0
-                SC.states.drag.can = false
-                SC.states.hover.can = false
-                SC.no_ui = true
-
-                G.VIBRATION = G.VIBRATION + 2
-
-                play_sound('whoosh1', 0.7, 0.2)
-                play_sound('introPad1', 0.704, 0.6)
-            return true;end)}))
-
-            --dissolve fool card and start to fade in the vortex
-            G.E_MANAGER:add_event(Event({trigger = 'after',delay = 1.8,func = (function() --|||||||||||
-            print(startupframe)
-                SC:start_dissolve({G.C.CHIPS, G.C.CHIPS},true, 12, true)
-                play_sound('magic_crumple', 1, 0.5)
-                play_sound('splash_buildup', 1, 0.7)
-            return true;end)}))
-
-            --create all the cards and suck them in
-            function make_splash_card(args)
-                args = args or {}
-                local angle = math.random()*2*3.14
-                local card_size = (args.scale or 1.5)*(math.random() + 1)
-                local card_pos = args.card_pos or {
-                    x = (18 + card_size)*math.sin(angle),
-                    y = (18 + card_size)*math.cos(angle)
-                }
-                local center = G.P_CENTERS.c_base
-                local face = pseudorandom_element(G.P_CARDS)
-                -- small chance to spawn a random mod 'yogi' joker instead of a regular playing card
-                    local yogi = {}
-                    for k, _ in pairs(G.P_CENTERS or {}) do
-                        if type(k) == 'string' and (k:match('^j_yogi_') or k:match('^c_yogi_') or k:match('^bl_yogi_') or k:match('^tag_yogi_')) and not k:match('^j_yogi_skeleton') and not k:match('^c_yogi_A') then table.insert(yogi, k) end
-                    end
-                    if #yogi > 0 then
-                        local chosen = yogi[math.random(#yogi)]
-                        center = G.P_CENTERS[chosen] or center
-                        face = nil
-                    end
-                local card = Card(  card_pos.x + G.ROOM.T.w/2 - G.CARD_W*card_size/2,
-                                    card_pos.y + G.ROOM.T.h/2 - G.CARD_H*card_size/2,
-                                    card_size*G.CARD_W, card_size*G.CARD_H, face, center)
-                if math.random() > 1.1 then card.sprite_facing = 'back'; card.facing = 'back' end
-                card.no_shadow = true
-                card.states.hover.can = false
-                card.states.drag.can = false
-                card.vortex = true and not args.no_vortex
-                card.T.r = angle
-                return card, card_pos
-            end
-
-            G.vortex_time = G.TIMERS.REAL
-            local temp_del = nil
-
-            for i = 1, 300 do
-                temp_del = temp_del or 3
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    blockable = false,
-                    delay = temp_del,
-                    func = (function()
-                    local card, card_pos = make_splash_card({scale = 2 - i/300})
-                    local speed = math.max(2. - i*0.005, 0.001)
-                    ease_value(card.T, 'scale', -card.T.scale, nil, nil, nil, 1.*speed)
-                    ease_value(card.T, 'x', -card_pos.x, nil, nil, nil, 0.9*speed)
-                    ease_value(card.T, 'y', -card_pos.y, nil, nil, nil, 0.9*speed)
-                    local temp_pitch = i*0.007 + 0.6
-                    local temp_i = i
-                    G.E_MANAGER:add_event(Event({
-                        blockable = false,
-                        func = (function()
-                            if card.T.scale <= 0 then
-                                if temp_i < 30 then 
-                                    play_sound('whoosh1', temp_pitch + math.random()*0.05, 0.25*(1 - temp_i/50))
-                                end
-
-                                if temp_i == 15 then
-                                    play_sound('whoosh_long',0.9, 0.7)
-                                end
-                                G.VIBRATION = G.VIBRATION + 0.1
-                                card:remove()
-                                return true
-                            end
-                        end)}))
-                        return true
-                    end)}))
-                    temp_del = temp_del + math.max(1/(i), math.max(0.2*(170-i)/500, 0.016))
-            end
-
-            --when faded to white, spit out the 'Fool's' cards and slowly have them settle in to place
-            G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = (function()
-                G.SPLASH_BACK:remove()
-                G.SPLASH_BACK = G.SPLASH_FRONT
-                G.SPLASH_FRONT = nil
-                G:main_menu('splash')
-            return true;end)}))
-        return true
-    end)
-    }))
+        }))
+    end
+    
 end
-
 
 
 
@@ -1202,8 +1232,8 @@ function G.UIDEF.challenge_list_page(_page)
     if k > G.CHALLENGE_PAGE_SIZE*(_page or 0) and k <= G.CHALLENGE_PAGE_SIZE*((_page or 0) + 1) then
       if G.CONTROLLER.focused.target and G.CONTROLLER.focused.target.config.id == 'challenge_page' then snapped = true end
       local challenge_completed = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed[v.id or '']
-      local challenge_golden = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_golden[v.id or '']
-      local challenge_extra = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_earl[v.id or '']
+      local challenge_golden = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_golden[v.id or ''] or false
+      local challenge_extra = G.PROFILES[G.SETTINGS.profile].challenge_progress.completed_earl[v.id or ''] or false
       local challenge_unlocked = G.PROFILES[G.SETTINGS.profile].challenges_unlocked and (G.PROFILES[G.SETTINGS.profile].challenges_unlocked >= k)
 
       local extra = nil
@@ -1418,4 +1448,206 @@ for k, v in ipairs(G.CHALLENGES) do
     if v.extrarules then
         table.insert(G.EXTRACHECK, v.original_key)
     end
+end
+
+
+
+SMODS.RunSelectPage({
+    key = 'armorselect',
+    grid_size = {1, 2},
+    automatic_preview = true,
+    type = 'armor',
+    
+
+    generate_pool = function(self)
+        local pool = {}
+
+        for _, v in pairs(G.P_CENTERS) do
+            if v.set == 'armor' then
+                table.insert(pool, v)
+            end
+        end
+        return pool
+    end,
+
+    start_run = function(self, choice)
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.7,
+            func = function()
+                local c = SMODS.add_card({
+                    key = choice or 'c_yogi_empty',
+                    skip_materialize = true
+                })
+
+                c:start_materialize()
+
+                return true
+            end
+        }))
+    end,
+
+    set_default = function(self, choice)
+        return 'c_yogi_empty'
+    end
+})
+
+SMODS.RunSelectPage({
+    key = 'charmselect',
+    grid_size = {1, 3},
+    automatic_preview = true,
+    type = 'charm',
+    
+
+    generate_pool = function(self)
+        local pool = {}
+
+        for _, v in pairs(G.P_CENTERS) do
+            if v.set == 'charm' then
+                table.insert(pool, v)
+            end
+        end
+        return pool
+    end,
+
+    start_run = function(self, choice)
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.7,
+            func = function()
+                local c = SMODS.add_card({
+                    key = choice or 'c_yogi_emptycharm',
+                    skip_materialize = true
+                })
+
+                c:start_materialize()
+
+                return true
+            end
+        }))
+    end,
+
+    set_default = function(self, choice)
+        return 'c_yogi_emptycharm'
+    end
+})
+
+
+G.earlhead = new_arbituary_image("textures/earlhead.png")
+function create_UIBox_notify_alert_fams(_achievement, _type)
+  local _c, _atlas = new_arbituary_image("textures/earlhead.png"),
+    _type == 'Joker' and G.ASSET_ATLAS["Joker"] or
+    _type == 'Voucher' and G.ASSET_ATLAS["Voucher"] or
+    _type == 'Back' and G.ASSET_ATLAS["centers"] or
+    G.ASSET_ATLAS["icons"]
+
+
+  local t_s = Sprite(0,0,1.5*(_atlas.px/_atlas.py),1.5,_atlas, _c and _c.pos or {x=3, y=0})
+  t_s.states.drag.can = false
+  t_s.states.hover.can = true
+  t_s.states.collide.can = true
+ 
+  local subtext = _type
+
+  if _achievement == 'b_challenge' then subtext = localize('k_challenges') end
+  local name = _type or 'ERROR'
+
+    local t = {n=G.UIT.ROOT, config = {align = 'cl', r = 0.1, padding = 0.06, colour = G.C.UI.TRANSPARENT_DARK}, nodes={
+    {n=G.UIT.R, config={align = "cl", padding = 0.2, minw = 20, r = 0.1, colour = G.C.BLACK, outline = 1.5, outline_colour = G.C.GREY}, nodes={
+      {n=G.UIT.R, config={align = "cm", r = 0.1}, nodes={
+        {n=G.UIT.R, config={align = "cm", r = 0.1}, nodes={
+          {n=G.UIT.O, config={object = t_s}},
+        }},
+        _type ~= 'achievement' and {n=G.UIT.R, config={align = "cm", padding = 0.04}, nodes={
+          {n=G.UIT.R, config={align = "cm", maxw = 3.4}, nodes={
+            {n=G.UIT.T, config={text = subtext, scale = 0.5, colour = G.C.FILTER, shadow = true}},
+          }},
+          {n=G.UIT.R, config={align = "cm", maxw = 3.4}, nodes={
+            {n=G.UIT.T, config={text = localize('k_unlocked_ex'), scale = 0.35, colour = G.C.FILTER, shadow = true}},
+          }}
+        }}
+        or {n=G.UIT.R, config={align = "cm", padding = 0.04}, nodes={
+          {n=G.UIT.R, config={align = "cm", maxw = 3.4, padding = 0.1}, nodes={
+            {n=G.UIT.T, config={text = name, scale = 0.4, colour = G.C.UI.TEXT_LIGHT, shadow = true}},
+          }},
+          {n=G.UIT.R, config={align = "cm", maxw = 3.4}, nodes={
+            {n=G.UIT.T, config={text = subtext, scale = 0.3, colour = G.C.FILTER, shadow = true}},
+          }},
+          {n=G.UIT.R, config={align = "cm", maxw = 3.4}, nodes={
+            {n=G.UIT.T, config={text = localize('k_unlocked_ex'), scale = 0.35, colour = G.C.FILTER, shadow = true}},
+          }}
+        }}
+      }}
+    }}
+  }}
+  return t
+end
+
+
+
+function notify_alert_fams(_achievement, _type)
+    _type = _type or 'achievement'
+    G.E_MANAGER:add_event(Event({
+      no_delete = true,
+      pause_force = true,
+      timer = 'UPTIME',
+      func = function()
+        if G.achievement_notification then
+            G.achievement_notification:remove()
+            G.achievement_notification = nil
+        end
+        G.achievement_notification = G.achievement_notification or UIBox{
+            definition = create_UIBox_notify_alert_fams(_achievement, _type),
+            config = {align='cr', offset = {x=20,y=0},major = G.ROOM_ATTACH, bond = 'Weak'}
+        }
+        return true
+      end
+    }), 'achievement')
+    G.E_MANAGER:add_event(Event({
+        no_delete = true,
+        trigger = 'after',
+        pause_force = true,
+        timer = 'UPTIME',
+        delay = 0.1,
+        func = function()
+            G.achievement_notification.alignment.offset.x = G.ROOM.T.x - G.achievement_notification.UIRoot.children[1].children[1].T.w
+          return true
+        end
+    }), 'achievement')
+    G.E_MANAGER:add_event(Event({
+        no_delete = true,
+        pause_force = true,
+        trigger = 'after',
+        timer = 'UPTIME',
+        delay = 0.1,
+        func = function()
+            play_sound('highlight1', nil, 0.5)
+          return true
+        end
+    }), 'achievement')
+    G.E_MANAGER:add_event(Event({
+      no_delete = true,
+      pause_force = true,
+      trigger = 'after',
+      delay = 3,
+      timer = 'UPTIME',
+      func = function()
+        G.achievement_notification.alignment.offset.x = 20
+        return true
+      end
+    }), 'achievement')
+    G.E_MANAGER:add_event(Event({
+        no_delete = true,
+        pause_force = true,
+        trigger = 'after',
+        delay = 0.5,
+        timer = 'UPTIME',
+        func = function()
+            if G.achievement_notification then
+                G.achievement_notification:remove()
+                G.achievement_notification = nil
+            end
+          return true
+        end
+    }), 'achievement')
 end

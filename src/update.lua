@@ -216,7 +216,6 @@ end
 G.yogi_update = function(dt)
 	updateDelta = dt
 	if G.GAME and G.GAME.blind and G.GAME.blind:get_type() == 'Boss' then
-		print(G.GAME.blind:get_type())
 		G.GAME.playingboss = true
 	end
 
@@ -583,15 +582,21 @@ end
 
 	if G.GAME.CHARM ~= nil and G.GAME.CHARM ~= "none" then
 		if G.GAME.CHARM == "cat" and num < 1 then
-			print(num)
 			play_sound('yogi_meow', math.random(0.7, 1.3), 1)
 		end
 	end
 
 
 
+	if G and G.jokers and G.jokers.cards and G.drag_call == true and love.mouse.isDown(1) then
+		for _, joker in ipairs(G.jokers.cards) do
+			yogi_dragged(joker)
+		end
+	end
 
-
+	if not love.mouse.isDown(1) then
+		G.drag_call = true
+	end
 end
 
 
@@ -813,7 +818,9 @@ G.yogi_draw = function()
 end
 
 
-
+G.draw_unlock_box = function()
+	
+end
 
 G.yogi_draw_front = function()
 	local mx = love.mouse.getX();
@@ -967,7 +974,6 @@ if isChallenge("focus") and not run_lost() then
 	G.BPM = 50
 
 	G.GAME.clickgrace = (G.GAME.clickgrace or 0)
-	print(G.GAME.clickgrace)
 	G.GAME.tickvalue = (G.GAME.tickvalue or 1)
 
 	if beatcur % 1 < 0.5 then

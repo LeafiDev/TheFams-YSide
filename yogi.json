@@ -6,5 +6,6 @@
   "prefix": "yogi",
   "main_file": "yogi.lua",
   "version": "1.0.0",
-  "icon_path": "icon.png"
+  "icon_path": "icon.png",
+  "priority": -1
 }

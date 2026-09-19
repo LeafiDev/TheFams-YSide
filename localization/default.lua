@@ -4,11 +4,16 @@ return {
     },
 
     misc = {
-        quips={
+        dictionary = {
+            run_select_yogi_armorselect = "Select Armor",
+            run_select_yogi_charmselect = "Select Charm",
+        },
+
+        quips = {
             yogi_winner1 = {"Well done,", "{E:yogi_wheel}Champ.{}"},
             yogi_winner2 = {"Way to reel in the big bucks!"},
             yogi_winner3 = {"You must be a {E:1}billionaire!{}"},
-            
+
             yogi_loser1 = {"Get it together", "Lackey!"},
             yogi_loser2 = {"These things don't get done themselves chump."},
             yogi_loser3 = {"You're makin my investments look bad!"},
