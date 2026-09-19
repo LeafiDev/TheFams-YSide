@@ -1,0 +1,7 @@
+{
+    "name": "THE_FAMS_YSIDE",
+    "version_number": "1.0.0",
+    "website_url": "",
+    "description": "A sequel to my shitpost mod, THE FAMS",
+    "dependencies": ["just_frostice482-Amulet-3.6.0", "SwiftLeaf-THE_FAMS-3.2.1"]
+}
