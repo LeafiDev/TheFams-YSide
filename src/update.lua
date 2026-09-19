@@ -353,6 +353,10 @@ G.yogi_update = function(dt)
 		G.CONDITIONALS.text = G.CONDITIONALS.text .. "Have a reputation of at least\n"..tostring(G.GAME.modifiers.rep_required).." before ante "..tostring(G.GAME.win_ante).."\n"
 	end
 
+	if G.GAME.runningcredits then
+		G.CONDITIONALS.text = ""
+	end
+
 	if has_modifier("flipryth") then
 
 		
@@ -822,10 +826,43 @@ G.draw_unlock_box = function()
 	
 end
 
+local text_fonts = {}
+local text_cache = {}
+
+function draw_text(text, x, y, scale, center)
+	if not text_fonts[scale] then
+		text_fonts[scale] = love.graphics.newFont(
+			"resources/fonts/m6x11plus.ttf",
+			scale
+		)
+	end
+
+	local key = tostring(scale) .. ":" .. text
+
+	if not text_cache[key] then
+		text_cache[key] = love.graphics.newText(text_fonts[scale], text)
+	end
+
+	local plainText = text_cache[key]
+	local formula_align = center and plainText:getWidth() * 0.5 or 0
+
+	love.graphics.draw(
+		plainText,
+		math.floor(x),
+		math.floor(y),
+		0,
+		0.2,
+		0.2,
+		formula_align,
+		0
+	)
+end
+
 G.yogi_draw_front = function()
 	local mx = love.mouse.getX();
 	local my = love.mouse.getY();
 	G.ease_screen = { x = (G.ARGS.eased_cursor_pos.sx - 960) * 0.03 or 0, y = (G.ARGS.eased_cursor_pos.sy - 21) * 0.03 or 0 }
+
 
 	local t = G.TIMERS.REAL
 	-- oh god 3d
@@ -1073,6 +1110,119 @@ end
 		G.timer.x = G.timer.x + ((1900 - G.timer.x) / 5)
 		G.timer.y = G.timer.y + ((1000 - G.timer.y) / 5)
 	end
+
+
+
+
+
+
+	-- oh heavens no
+if G.GAME.runningcredits then
+	local credits = {
+		{"THE FAMS + Y-SIDE", 400},
+		{"Thanks for also loading the original mod too lol", 200},
+
+		{"Original mod idea by LeafiDev", 200},
+		{"Mod formed from a private test mod", 200},
+
+		{"Mod collaborators", 400},
+		{"ObviousAlexC (Major base FAMS refactor) (Shaders) (General Spriter)", 200},
+		{"Jinku (Taiko related jokes) (General tester) (Card Spriter)", 200},
+		{"xPikolaix (Limit pusher) (Card Spriter) (Main co-idea giver) (Composer [one of many :)])", 200},
+		{"Kabez (funny man) (gave partial idea of The Graze)", 200},
+		{"Wafflejolt64/Wafflegaming00 (Idea giver) (gave the idea for The Pootis) (proposed challenge 0.000001% of gamblers win big)", 200},
+		{"Earl Joe (Dog) (Funny) (Is basically the whole inspiration for this mod) (Being a good boi)", 200},
+		{"Yogi (Being gangsta) (Also being a good boi)", 200},
+		{"Bear (Brother to Yogi) (also ALSO being a good boi)", 200},
+
+		{"Music Credits (This one's a doozy)", 400},
+		{"Toby Fox", 300},
+		{"HAPPY TOWN (pre-chapter 5 deltarune)", 200},
+		{"A DARK ZONE", 200},
+		{"Dogsino", 200},
+		{"The Third Sanctuary", 200},
+
+		{"Lex3x", 300},
+		{"Stardome Swing", 200},
+
+		{"ReverieNova", 300},
+		{"Trainwreck (Reverified)", 200},
+
+		{"OriginalKyle", 300},
+		{"Cold Rush - (Strawberry Jams Vol 2)", 200},
+
+		{"Maddie Sexton (Fire name by the way)", 300},
+		{"Strawberry Jam Collab OST - Silence Of The Abyss", 200},
+
+		{"Lena Raine", 300},
+		{"Celeste OST - Fear Of The Unknown", 200},
+		{"Celeste OST - Beyond The Heart", 200},
+		{"Celeste OST - The Empty Space Above", 200},
+
+		{"Mr Sauceman", 300},
+		{"The Death I Deservioli", 200},
+
+		{"Sayth Vashra", 300},
+		{"Reach For The Summit - Arrangement", 200},
+
+		{"Beanjammin", 300},
+		{"Passionfruit Pantheon - Apotheosis Mix", 200},
+
+		{"Oftome", 300},
+		{"CELESTIAL SPIRE", 200},
+
+		{"Hushki", 300},
+		{"Balatro (Main Theme) FL studio Mobile Cover", 200},
+
+		{"Eimi", 300},
+		{"Flower Man (ft. REASAN)", 200},
+
+		{"Vozaxhi", 300},
+		{"Campfire", 200},
+
+		{"Thanks for everything.", 400},
+		{"These mods took way too long to make", 300},
+		{"Press Mouse1 to win the challenge", 300},
+	}
+
+	local y = 1200
+
+	if credits_scroll > 10000 then
+		credits_scroll = 10000
+
+		if love.mouse.isDown(1) then
+			if G.GAME.won == false then
+				win_game()
+			end
+		end
+	end
+
+	for _, credit in ipairs(credits) do
+		draw_text(credit[1], 100, y - credits_scroll, credit[2])
+		y = y + 200
+	end
+
+	credits_scroll = credits_scroll + 0.5
+
+	if love.mouse.isDown(1) then
+		credits_scroll = credits_scroll + 4
+	end
+
+	local screen_width = love.graphics.getWidth()
+    local screen_height = love.graphics.getHeight()
+
+	draw_3d(
+		((screen_width / 19) + 300) + G.ease_screen.x * 3.5,
+		((screen_height / 19) + 800) + G.ease_screen.y * 3.5 - (credits_scroll),
+		155,
+		155 / 2,
+		t * 0.05,
+		t,
+		t * 0,
+		G.earlcube
+	)
+
+end
 
 	draw_overlays()
 end

@@ -2,10 +2,11 @@
   "id": "y-side",
   "name": "THE YOG-SIDE",
   "author": ["Leafi"],
-  "description": "The Sequel to THE FAMS",
+  "description": "The Smaller Sequel to THE FAMS",
   "prefix": "yogi",
   "main_file": "yogi.lua",
   "version": "1.0.0",
   "icon_path": "icon.png",
-  "priority": -1
+  "priority": 1,
+  "dependencies": ["Steamodded (>=1.1)"]
 }

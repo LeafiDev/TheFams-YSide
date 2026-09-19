@@ -48,7 +48,7 @@ SMODS.Sound {
   path = "music_windoe.ogg",
   select_music_track = function(self)
     if isChallenge("places") then
-    return 55
+    return 506
     end
   end
 }
@@ -191,6 +191,17 @@ SMODS.Sound {
   select_music_track = function(self)
     if (isChallenge("sun")) then
       return 9999
+    end
+  end
+}
+
+SMODS.Sound {
+  key = "music_credits",
+  pitch = 1,
+  path = "music_credits.ogg",
+  select_music_track = function(self)
+    if G.GAME.runningcredits then
+      return 999999999999
     end
   end
 }

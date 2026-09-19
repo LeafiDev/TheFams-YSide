@@ -21,6 +21,13 @@ SMODS.Atlas {
     py = 95
 }
 
+SMODS.Atlas {
+    key = "yogi_deck",
+    path = "yogi_deck.png",
+    px = 71,
+    py = 95
+}
+
 SMODS.Back {
     key = "QB",
     loc_txt = {
@@ -88,29 +95,32 @@ end
 }
 
 SMODS.Back {
-    key = "SD",
+    key = "yogi_deck",
     loc_txt = {
-        name = "Special Deal Deck",
+        name = "Yogi Deck",
         text = {
-            "start with {C:money}$10{}",
-            "start with {C:purple,E:1}10 Reputation{}"
+            "Start with {C:attention}Yogi Bear{}"
         }
     },
     loc_vars = function()
         return { vars = {  } }
     end,
-    atlas = "deal",
+    atlas = "yogi_deck",
     pos = {x = 0, y = 0},
     apply = function(self, back)
-    G.E_MANAGER:add_event(Event({
+        G.E_MANAGER:add_event(Event({
             trigger = "immediate",
             func = function()
-                G.GAME.dollars = 10
-                G.GAME.reputation = 10
+                SMODS.add_card  {
+                set = "Joker",                
+                legendary = false,            
+                key = "j_yogi_yogi",
+                skip_materialize = false,     
+                }
                 return true
             end
         }))
-end
+    end
 }
 
 SMODS.Back {

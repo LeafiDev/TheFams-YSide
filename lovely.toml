@@ -190,6 +190,9 @@ pattern = "function create_UIBox_round_evaluation()"
 position = "after"
 payload = '''
 eval_trigger()
+if isChallenge("encore") then
+encore()
+end
 '''
 match_indent = false
 times = 1

@@ -187,7 +187,7 @@ G.REMOVE_MAIN = false
 G.CUTSCENE = false
 
 if fams_loaded then
-    love.window.showMessageBox( "A Bone To Pick", "Hey. I noticed that THE FAMS is loaded. This mod is meant to be played without the base fams loaded. You may continue to run it if you'd like but it's recommended to play without it.", warning, true )
+    -- love.window.showMessageBox( "A Bone To Pick", "Hey. I noticed that THE FAMS is loaded. This mod is meant to be played without the base fams loaded. You may continue to run it if you'd like but it's recommended to play without it.", warning, true )
 end
 
 -- Initialize mod namespace
@@ -239,7 +239,7 @@ assert(SMODS.load_file('src/stickers.lua'))()
 assert(SMODS.load_file('src/tags.lua'))()
 assert(SMODS.load_file('src/enhancements.lua'))()
 assert(SMODS.load_file('src/challenge-def.lua'))()
-
+assert(SMODS.load_file('src/stake.lua'))()
 assert(SMODS.load_file('src/extra-scripts.lua'))()
 
 
@@ -319,8 +319,12 @@ function yogi_gameover()
 end
 
 function yogi_startgame()
+    credits_scroll = 0
+
     if not G.GAME.alreadystarted then
         ExtraScriptActivate()
+
+        
 
         G.GAME.reputation = 0
         G.TIMERTICK = 0
@@ -413,6 +417,22 @@ function yogi_startgame()
         }))
     end
 
+    if G.GAME.stake >= 20 then
+        make_timer("shiver", 600, function()
+            ForceLoss()
+        end, false, 0.5)
+        set_deathwish_timer("shiver")
+    end
+
+    if G.GAME.stake >= 21 then
+        G.GAME.win_ante = G.GAME.win_ante + 5
+        remove_timer("shiver")
+        make_timer("shiver", 475, function()
+            ForceLoss()
+        end, false, 1)
+        set_deathwish_timer("shiver")
+    end
+
     G.YOGIHARDMODE = false
 end
 
@@ -430,6 +450,10 @@ function pause_trigger()
 	end
 
     if G.MENUKILL == "ALWAYS" then
+        ForceLoss()
+    end
+
+    if G.GAME.stake >= 20 then
         ForceLoss()
     end
 end
@@ -545,6 +569,7 @@ function eval_trigger()
             end
         }))
     end
+    
 
 end
 
@@ -592,6 +617,7 @@ end
                 return G.LGendalpha > 1 and G.LGalpha < 0
             end
         }))
+        
     end
 
     if isChallenge("onemore") and G.GAME.round_resets.ante >= 8 and not G.TIMER_TRACK.evil and G.GAME.cutscene1 == false then
@@ -647,7 +673,7 @@ end
                 play_sound("yogi_japhit", 1.02, 1)
                 SMODS.add_card  {
                     set = "Joker",           
-                    edition = "e_premium",      
+                    edition = "e_polychrome",      
                     legendary = false,            
                     key = "j_yogi_yogi",
                     skip_materialize = false,     
@@ -721,8 +747,38 @@ end
         }))
     end
 
-
     you_won()
+end
+
+credits_scroll = 0
+function encore()
+    G.GAME.runningcredits = true
+    if isChallenge("encore") then
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 0.1,
+            func = function()
+                removeCARDAREA()
+                removeUIBOX()
+                G.CUTSCENE = true
+                G.deck.states.visible = false
+                G.round_eval.states.visible = false
+                G.round_eval.alignment.offset.x = 999
+                return true
+            end
+        }))
+
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 1,
+            func = function()
+                
+                return credits_scroll > 5000
+            end
+        }))
+
+    end
+
 end
 
 function Reset_High_Score()
@@ -859,6 +915,7 @@ function yogi_blind_set()
         end
         play_sound('tarot2', 1, 0.4)
     end
+
 end
 
 function yogi_card_clicked(self)

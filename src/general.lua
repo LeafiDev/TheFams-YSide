@@ -1,3 +1,4 @@
+if not fams_loaded then
 -- title custom
 local original_main_menu = Game.main_menu
 -- Table to track viewed title screens (no duplicates)
@@ -136,6 +137,14 @@ Game.main_menu = function(self, change_context)
             return true
         end
     }))
+end
+
+else
+for i = #G.CHALLENGES, 1, -1 do
+    if G.CHALLENGES[i].id and G.CHALLENGES[i].id:sub(1, 6) == "c_fams" then
+        table.remove(G.CHALLENGES, i)
+    end
+end
 end
 
 function CreateColor(key, hex)

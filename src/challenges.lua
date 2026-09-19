@@ -397,6 +397,34 @@ SMODS.Challenge {
   vouchers = {}
 }
 
+SMODS.Challenge {
+  key = 'encore',
+  loc_txt = {
+	name = "Encore",
+	text = {''}
+  },
+  jokers = {{id = 'j_yogi_earl', eternal = true}, {id = 'j_yogi_yogi', eternal = true}, {id = 'j_yogi_bear', eternal = true}, {id = 'j_yogi_butterdog', eternal = true}, {id = 'j_yogi_radiation', eternal = true}},
+  deck = {
+	type = 'Challenge Deck'
+  },
+  button_colour = G.C.MONEY,
+  rules = {
+	custom = {},
+	modifiers = {
+    {id = "hands", value = 99}
+	}
+  },
+  restrictions = {
+    banned_cards = {
+    },
+	banned_tags = {},
+	banned_other = {}
+  },
+  consumeables = {},
+  vouchers = {}
+}
+
+
 
 
 
