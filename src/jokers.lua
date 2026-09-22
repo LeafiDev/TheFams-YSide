@@ -243,7 +243,7 @@ SMODS.Joker {
 		text = {
 			"Gives {X:chips,C:white}X0.5{} chips for every {C:money}1${}. ",
 			"Every hand eats {C:attention}half{} or {C:attention}up to 10${}",
-			"{C:inactive}Currently{} {X:chips,C:white}X#1#{} {C:inactive}Mult{}",
+			"{C:inactive}Currently{} {X:chips,C:white}X#1#{} {C:inactive}Chips{}",
 			"{C:inactive}Eats{} {C:money}#2#${} {C:inactive}this hand{}"
 		}
 	},
@@ -265,7 +265,7 @@ end,
 calculate = function(self, card, context)
 	   		if context.joker_main and not context.blueprint then
 		if hasJoker("j_fams_pedigree") then
-			return { message = "blocked", colour = G.C.GREEN, xmult = 0.5 * force_number(G.GAME.dollars, 1)}
+			return { message = "blocked", colour = G.C.GREEN, xchips = 0.5 * force_number(G.GAME.dollars, 1)}
 		else
 			return { dollars = calculate_div_dollars(2, 0, 10), xchips = 0.5 * force_number(G.GAME.dollars, 1), message = "Munch" }
 		end
@@ -439,7 +439,7 @@ SMODS.Joker {
     calculate = function(self, card, context)
 
         if context.end_of_round and not context.individual then
-            if G.GAME.reputation < 1 then
+            if G.GAME.reputation < 0 then
                 card:remove(true)
             end
         end
@@ -500,8 +500,10 @@ SMODS.Joker {
 
     add_to_deck = function(self, card, from_debuff)
         -- if payday = true we need to apply the rental sticker until no longer payday.
-        G.GAME.reputation = G.GAME.reputation or 5
-        G.GAME.yogi = {judgement = 0, boredom = 0, impressed = 0, payday = false}
+        if G.GAME.reputation < 5 then
+            G.GAME.reputation = 5
+        end
+        G.GAME.yogi = {judgement = 0, boredom = 0, impressed = 0, payday = false} -- unused now
     end
 }
 
@@ -1117,6 +1119,7 @@ SMODS.Joker {
 
     add_to_deck = function(self, card, from_debuff)
         play_sound("yogi_miau", 1, 1)
+        G.gotmiau = true
         card:juice_up()
         ForceLoss()
     end

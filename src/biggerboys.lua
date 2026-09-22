@@ -150,7 +150,7 @@ SMODS.Blind {
     },
 	boss = ({ min = 1 }),
     dollars = 10,
-    mult = 99,
+    mult = 9999,
 	boss_colour = HEX('3DAE2B'),
     set_blind = function(self)
         G.ENDSTOP = false
@@ -161,11 +161,19 @@ SMODS.Blind {
             end, false, 0.3)
             set_deathwish_timer("luigi")
         end
+
         spawn_face(true)
         G.FACECOUNT = 0
-        for face = 0, 300 do
+
+        local ante = G.GAME.round_resets.ante
+        local tospawn = math.floor(100 * ante)
+
+        local face = 1
+        while face <= tospawn do
             spawn_face()
+            face = face + 1
         end
+
     end,
 
     debuff_hand = function(self, cards, hand, handname, check)

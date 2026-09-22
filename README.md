@@ -1,6 +1,8 @@
 # HUGE FLASHING LIGHT WARNING (just like before)
 
-"The Fams y-side" is a sequel to the Balatro mod THE FAMS
+## Do not run with base fams
+
+"The Fams y-side" is a smaller sequel to the Balatro mod THE FAMS
 
 This mod adds:
 

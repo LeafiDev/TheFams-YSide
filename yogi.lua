@@ -187,7 +187,7 @@ G.REMOVE_MAIN = false
 G.CUTSCENE = false
 
 if fams_loaded then
-    -- love.window.showMessageBox( "A Bone To Pick", "Hey. I noticed that THE FAMS is loaded. This mod is meant to be played without the base fams loaded. You may continue to run it if you'd like but it's recommended to play without it.", warning, true )
+    love.window.showMessageBox( "A Bone To Pick", "Hey. I noticed that THE FAMS is loaded. This mod is meant to be played without the base fams loaded. You may continue to run it if you'd like but it's recommended to play without it.", warning, true )
 end
 
 -- Initialize mod namespace
@@ -322,7 +322,6 @@ function yogi_startgame()
     credits_scroll = 0
 
     if not G.GAME.alreadystarted then
-        ExtraScriptActivate()
 
         
 
@@ -345,11 +344,21 @@ function yogi_startgame()
             G.niceloop = false
         end
 
-        if isChallenge("onemore") and G.GAME.round_resets.ante < 11 then
-            make_timer("onemore", 500, function()
+        if isChallenge("onemore") and G.GAME.round_resets.ante < G.GAME.win_ante then
+            if G.GAME.YOGICHALLENGEMODE then
+                G.GAME.win_ante = 10
+                make_timer("onemore", 600, function()
                 ForceLoss()
-            end, false, 1)
-            set_deathwish_timer("onemore")
+                end, false, 1.2)
+                set_deathwish_timer("onemore")
+            else
+                G.GAME.win_ante = 10
+                make_timer("onemore", 500, function()
+                ForceLoss()
+                end, false, 1)
+                set_deathwish_timer("onemore")
+            end
+            
         end
 
         if isChallenge("sun") then
@@ -415,6 +424,18 @@ function yogi_startgame()
                 return cutscenetimer > 100
             end
         }))
+
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 1,
+            func = function()
+                ExtraScriptActivate()
+                return true
+            end
+        }))
+
+
+        
     end
 
     if G.GAME.stake >= 20 then
@@ -624,10 +645,6 @@ end
         play_sound('yogi_break', 1, 1)
         G.TIMER_TRACK.scale = 2
         G.TIMER_TRACK.evil = true
-
-        G.GSAVE = G.SETTINGS.GAMESPEED
-
-        G.SETTINGS.GAMESPEED = 2
         G.TIMER_TRACK.paused = true
 
         G.returnx = G.jokers.CT.x
@@ -666,9 +683,11 @@ end
             end
         }))
 
+        if not G.YOGICHALLENGEMODE then
+
         G.E_MANAGER:add_event(Event({
             trigger = "after",
-            delay = 1,
+            delay = 2,
             func = function()
                 play_sound("yogi_japhit", 1.02, 1)
                 SMODS.add_card  {
@@ -684,7 +703,7 @@ end
 
         G.E_MANAGER:add_event(Event({
             trigger = "after",
-            delay = 1,
+            delay = 2,
             func = function()
                 play_sound("yogi_japhit", 1.05, 1)
                 SMODS.add_card  {
@@ -700,7 +719,7 @@ end
 
         G.E_MANAGER:add_event(Event({
             trigger = "after",
-            delay = 1,
+            delay = 2,
             func = function()
                 play_sound("yogi_japhit", 1.07, 1)
                 SMODS.add_card  {
@@ -708,7 +727,7 @@ end
                     edition = "e_polychrome",        
                     legendary = false,            
                     key = "j_yogi_radiation",
-                    skip_materialize = false,     
+                    skip_materialize = false,   
                 }
                 return true
             end
@@ -716,7 +735,7 @@ end
 
         G.E_MANAGER:add_event(Event({
             trigger = "after",
-            delay = 1,
+            delay = 2,
             func = function()
                 play_sound("yogi_japhit", 1.1, 1)
                 SMODS.add_card  {
@@ -726,10 +745,11 @@ end
                     key = "j_yogi_butterdog",
                     skip_materialize = false,  
                 }
-                G.SETTINGS.GAMESPEED = G.GSAVE
                 return true
             end
         }))
+
+        end
 
         G.E_MANAGER:add_event(Event({
             trigger = "after",
@@ -944,13 +964,14 @@ function yogi_card_clicked(self)
         end
     end
 
-    if G.jokers and self.config.center_key == "j_yogi_5dollar" and G.jokers.cards[self.rank].highlighted == false then
-        if (G.jokers.cards[self.rank + 1] ~= nil or G.jokers.cards[self.rank].ability.extra.stored ~= false) then
-            local yogi = G.jokers.cards[self.rank]
+    for k, v in ipairs(G.jokers.cards) do
+        if G.jokers and v.config.center_key == "j_yogi_5dollar" and G.jokers.cards[v.rank].highlighted == false then
+        if (G.jokers.cards[v.rank + 1] ~= nil or G.jokers.cards[v.rank].ability.extra.stored ~= false) then
+            local yogi = G.jokers.cards[v.rank]
             local extra = yogi.ability.extra
 
             if extra.stored == false then
-                local card = G.jokers.cards[self.rank + 1]
+                local card = G.jokers.cards[v.rank + 1]
 
                 extra.stored = card
 
@@ -968,7 +989,7 @@ function yogi_card_clicked(self)
 
             G.jokers:align_cards()
         else
-            self:juice_up()
+            v:juice_up()
             if G.jokers.cards[self.rank + 1] == nil then
                 attention_text({
                     scale = 0.5, text = "No Card", hold = 0.9, align = 'cm',
@@ -977,6 +998,10 @@ function yogi_card_clicked(self)
             end
         end
     end
+
+    end
+
+    
 end
 
 

@@ -19,8 +19,8 @@ SMODS.Enhancement{
     loc_txt = {
         name = "Bloost",
         text = {
-            "{C:chips}+15%{} chips",
-            "{s:0.5}15% of the blind requirement{}"
+            "{C:chips}+10%{} chips",
+            "{s:0.5}10% of the blind requirement{}"
         },
     },
     atlas = "boost",
@@ -39,7 +39,7 @@ SMODS.Enhancement{
     end,
     calculate = function(self, card, context)
         if context.cardarea == G.play and context.main_scoring then
-            return {chips = G.GAME.blind.chips * 0.15}
+            return {chips = G.GAME.blind.chips * 0.10}
         end
     end,
 }

@@ -256,7 +256,7 @@ G.yogi_update = function(dt)
     end
 
 	if isChallenge("onemore") and not timer_exists("onemore") and G.GAME.round_resets.ante < 11 then
-		G.GAME.win_ante = 10
+		
         make_timer("onemore", 500, function()
 			ForceLoss()
 		end, false, 1)
@@ -748,7 +748,6 @@ G.yogi_draw = function()
 
 	if isChallenge("onemore") then
 		G.last_goodbye_battleback()
-		G.GAME.win_ante = 10
 		G.GAME.dollars = 100
 
 		if G.TIMER_TRACK.evil then

@@ -394,7 +394,9 @@ SMODS.Challenge {
 	banned_other = {{id = "bl_final_vessel", type = "blind"}, {id = "bl_final_heart", type = "blind"}, {id = "bl_final_bell", type = "blind"}, {id = "bl_final_leaf", type = "blind"}, {id = "bl_final_acorn", type = "blind"}}
   },
   consumeables = {},
-  vouchers = {}
+  vouchers = {},
+
+  extrarules = {"at ante 8 spawn just {C:attention}Earl Joe{}", "Timer increased to 550", "Timer base speed is set to 1.2x"}
 }
 
 SMODS.Challenge {
